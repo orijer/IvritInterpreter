@@ -24,7 +24,8 @@ TO ADD ONCE I UPLOAD THE DIST FOLDER
 
 
 ## Start Learning Ivrit
-We have built a complete tutorial in Hebrew for how to use the Ivrit language in ()[]
+We have built a complete tutorial in Hebrew for how to use the Ivrit language in [here](https://github.com/orijer/IvritInterpreter/blob/main/%D7%9E%D7%93%D7%A8%D7%99%D7%9A%20%D7%9E%D7%9C%D7%90%20%D7%9C%D7%A9%D7%A4%D7%94.txt)
+Make sure to download that text file first to change it to Right to Left (Git doesn't support that right now!).
 
 Any questions regarding the Ivrit programming language itself should be asked in the [Ivrit Language Questions](https://github.com/orijer/IvritInterpreter/discussions/categories/ivrit-language-questions) in the discussions segment.
 
