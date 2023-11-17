@@ -1,7 +1,7 @@
 package Variables;
 
 /**
- * Represents a vaiable created by the user in the .Ivrit file.
+ * Represents a vaRiable created by the user in the .Ivrit file.
  */
 public interface Variable {
     /**
