@@ -9,10 +9,15 @@ You can choose to either use the already compiled version packaged in a convenie
 ## Getting Started
 
 ## Start Learning Ivrit
+We have built a complete tutorial in hebrew for how to use the Ivrit language in ()[]
 
-## Built With
+Any questions regarding the Ivrit programming language itself should be asked in the [Ivrit Language Questions](https://github.com/orijer/IvritInterpreter/discussions/categories/ivrit-language-questions) in the discussions segment.
 
 ## How To Contribute
+Did you find a bug? Or maybe you though of a new feature that will fit nicely?
+Make sure to open an issue or send a pull request!
+
+Also, constructive feedback is always welcomed in the [discussions segment](https://github.com/orijer/IvritInterpreter/discussions) 
 
 ## Authors
 * **Ori Bagno Jerushalmi** - [orijer](https://github.com/orijer)
