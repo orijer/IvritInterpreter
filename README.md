@@ -16,5 +16,9 @@ You can choose to either use the already compiled version packaged in a convenie
 
 ## Authors
 * **Ori Bagno Jerushalmi** - [orijer](https://github.com/orijer)
-  * Design of Ivrit syntax
+  * Design of Ivrit's syntax
   * Implementation of the Ivrit interpreter in java
+
+## Versioning
+We use Four Segment Versioning:
+ * MAJOR_VERSION.MINOR_VERSION.PATCH_VERSION.BUILD_VERSION
