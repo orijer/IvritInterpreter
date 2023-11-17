@@ -1,8 +1,17 @@
+import java.util.Locale;
+
+/**
+ * The main class the launches the interpreter.
+ */
 public class Main {
     public static void main(String[] args) {
+        System.setProperty("file.encoding", "UTF-8");
+        Locale.setDefault(new Locale("he"));
+
         FlowController controller = new FlowController();
         controller.startIvritInterpreter(true);
 
-        System.out.println("סיים");
+        System.out.println("הפירוש הסתיים");
+        System.out.println("ניתן לסגור את החלון בבטחה.");
     }
 }
