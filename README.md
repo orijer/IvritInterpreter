@@ -4,14 +4,17 @@ Welcome to Ivrit, a simple Hebrew Programming Language I created!
 This repository hosts the official Ivrit Interpreter, made in Java, and a thorough tutorial on the syntax of Ivrit.
 You can choose to either use the already compiled version packaged in a convenient executable, or download the java source files directly.
 
-##Features
+## Features
 
-##Getting Started
+## Getting Started
 
-##Start Learning Ivrit
+## Start Learning Ivrit
 
-##Built With
+## Built With
 
-##How To Contribute
+## How To Contribute
 
-##Authors
+## Authors
+* **Ori Bagno Jerushalmi** - [orijer](https://github.com/orijer)
+  * Design of Ivrit syntax
+  * Implementation of the Ivrit interpreter in java
