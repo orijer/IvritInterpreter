@@ -16,16 +16,27 @@ You can choose to either use the already compiled version packaged in a convenie
 
 ## Getting Started
 
-For downloading the interpreter and creating your first program in Ivrit, continue reading this segment.
+The first step is to download the Ivrit Interpreter executable in the [releases section](https://github.com/orijer/IvritInterpreter/releases).
+Read the install instructions carefully.
 
-For learning how to program in the Ivrit language- The syntax and structure of it, go to the next segment.
+The Ivrit Interpreter executable is a GUI program that I made, that allows the user to enter a path to a txt file that contains Ivrit code (more on that later)
+and follows the code until completion. We use it to run the Ivrit code files we create.
 
-TO ADD ONCE I UPLOAD THE DIST FOLDER
+The second step is to learn the Ivrit language syntax and strcture. You can find a full tutorial (In Hebrew) in the same folder as the Ivrit Interpreter executable.
+It will teach you everything you need to know about the Ivrit language.
+
+Lastly, you will want to run your own Ivrit code.
+This is the easiest part!
+Just create a new txt file anywhere you'd like, and type the code you  want to perform in it (as the tutorial teaches)
+
+In order to then run the file you created, copy the path to that file (right click on it, and copy path, or click once on it and press ctrl + shift + C).
+Then open the Ivrit Interpreter executable, and paste the path to it. It will let you know if the file was found or not, and continue from there!
 
 
-## Start Learning Ivrit
-We have built a complete tutorial in Hebrew for how to use the Ivrit language in [here](https://github.com/orijer/IvritInterpreter/blob/main/%D7%9E%D7%93%D7%A8%D7%99%D7%9A%20%D7%9E%D7%9C%D7%90%20%D7%9C%D7%A9%D7%A4%D7%94.txt)
-Make sure to download that text file first to change it to Right to Left (Git doesn't support that right now!).
+## A tutorial for Learning Ivrit
+We have built a complete tutorial in Hebrew for how to use the Ivrit language.
+It is already in the same folder as the Ivrit Interpreter executable, but you can also find it in [here](https://github.com/orijer/IvritInterpreter/blob/main/%D7%9E%D7%93%D7%A8%D7%99%D7%9A%20%D7%9E%D7%9C%D7%90%20%D7%9C%D7%A9%D7%A4%D7%94.txt).
+IF you prefer that, make sure to download the text file first and change it to Right to Left (Git doesn't support that right now!).
 
 Any questions regarding the Ivrit programming language itself should be asked in the [Ivrit Language Questions](https://github.com/orijer/IvritInterpreter/discussions/categories/ivrit-language-questions) in the discussions segment.
 
