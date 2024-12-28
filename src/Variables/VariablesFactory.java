@@ -10,16 +10,16 @@ public class VariablesFactory {
      * @return a new variable from the given type with the given value
      * @throws TypeNotPresentException when the type parameter is not recognized in the Ivrit language.
      */
-    public static Variable createVariable(String type, String value) {
+    public static Variable createVariable(String type, String value, boolean isConstant) {
         switch (type) {
             case "טענה":
-                return new BooleanVariable(value);
+                return new BooleanVariable(value, isConstant);
             case "שלם":
-                return new IntegerVariable(value);
+                return new IntegerVariable(value, isConstant);
             case "עשרוני":
-                return new FloatVariable(value);
+                return new FloatVariable(value, isConstant);
             case "משפט":
-                return new StringVariable(value);
+                return new StringVariable(value, isConstant);
             default:
                 throw new TypeNotPresentException(type, new ClassNotFoundException());
         }

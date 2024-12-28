@@ -5,7 +5,7 @@ import Evaluation.EvaluationController;
 
 import IvritExceptions.InterpreterExceptions.GeneralInterpreterException;
 import IvritExceptions.InterpreterExceptions.UnsupportedActionException;
-import IvritExceptions.InterpreterExceptions.UnsupportedCompundAssignmentException;
+import IvritExceptions.InterpreterExceptions.UnsupportedCompoundAssignmentException;
 
 import IvritStreams.RestartableBufferedReader;
 import IvritStreams.RestartableReader;
@@ -48,8 +48,8 @@ public class Interpreter {
      */
     public void initializeGlobalVariables() {
         //Initialize global variables for true and false:
-        this.variableController.createVariable("אמת", "טענה", "אמת");
-        this.variableController.createVariable("שקר", "טענה", "שקר");
+        this.variableController.createVariable("אמת", "טענה", "אמת", true);
+        this.variableController.createVariable("שקר", "טענה", "שקר", true);
     }
 
     /**
@@ -92,7 +92,7 @@ public class Interpreter {
     /**
      * Figures out what action needs to be performed, and calls it.
      * @return true IFF the program should continue after the given line is processed.
-     * @throws UnsupportedActionException when the action o the line is not supported in Ivrit.
+     * @throws UnsupportedActionException when the action of the line is not supported in Ivrit.
      */
     private boolean processLine(String originalLine) {
         String line = originalLine;
@@ -108,6 +108,9 @@ public class Interpreter {
                 break;
             case "משתנה":
                 processVariableAction(line.substring(line.indexOf(' ') + 1));
+                break;
+            case "קבוע":
+                processConstantAction(line.substring(line.indexOf(' ') + 1));
                 break;
             case "מחק":
                 processDeleteAction(line.substring(line.indexOf(' ') + 1).trim());
@@ -154,7 +157,17 @@ public class Interpreter {
         String[] infoTokens = splitVariableInfo(data);
 
         infoTokens[2] = this.evaluator.evaluate(infoTokens[2]);
-        this.variableController.createVariable(infoTokens[0], infoTokens[1], infoTokens[2]);
+        this.variableController.createVariable(infoTokens[0], infoTokens[1], infoTokens[2], false);
+    }
+
+    /**
+     * Processes the action of creating a new const.
+     */
+    private void processConstantAction(String data) {
+        String[] infoTokens = splitVariableInfo(data);
+
+        infoTokens[2] = this.evaluator.evaluate(infoTokens[2]);
+        this.variableController.createVariable(infoTokens[0], infoTokens[1], infoTokens[2], true);
     }
 
     /**
@@ -236,7 +249,7 @@ public class Interpreter {
      * Processes the assignment action.
      * @param data - The data to assign.
      * @param variableName - The name of the variable to assign to.
-     * @throws UnsupportedCompundAssignmentException when the compound assignment attempted is not supported in Ivrit.
+     * @throws UnsupportedCompoundAssignmentException when the compound assignment attempted is not supported in Ivrit.
      */
     private void processAssignmentAction(String data, String variableName) {
         char assignmentType = data.charAt(0);
@@ -275,7 +288,7 @@ public class Interpreter {
                 newValue = this.evaluator.evaluate('(' + data + " / " + variableName + ')');
                 break;
             default:
-                throw new UnsupportedCompundAssignmentException(assignmentType, data);
+                throw new UnsupportedCompoundAssignmentException(assignmentType, data);
         }
 
         this.variableController.updateVariable(variableName, newValue);

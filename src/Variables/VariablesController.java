@@ -31,15 +31,15 @@ public class VariablesController {
      * @param variableType - The type of the new variable.
      * @param variableValue - the value of the new variable.
      */
-    public void createVariable(String variableName, String variableType, String variableValue) {
+    public void createVariable(String variableName, String variableType, String variableValue, boolean isConstant) {
         Variable variable;
         if (this.dataMap.containsKey(variableValue)) {
             //If we are assigning a variable to this (we only copy by value):
-            variable = VariablesFactory.createVariable(variableType, this.dataMap.get(variableValue).getValue());
+            variable = VariablesFactory.createVariable(variableType, this.dataMap.get(variableValue).getValue(), isConstant);
 
         } else {
             //We are creating a variable from the value:
-            variable = VariablesFactory.createVariable(variableType, variableValue);
+            variable = VariablesFactory.createVariable(variableType, variableValue, isConstant);
 
         }
 
@@ -63,11 +63,16 @@ public class VariablesController {
      * @param variableName - The name of the variable to be updated.
      * @param newValue - The new value.
      * @throws NullPointerException when variableName isn't the name of a variable. 
+     * @throws NumberFormatException when trying to update the value of a constant.
      */
     public void updateVariable(String variableName, String newValue) {
         Variable variable = this.dataMap.get(variableName);
         if (variable == null) {
             throw new NullPointerException("לא נמצא משתנה בשם: " + variableName);
+        }
+
+        if (variable.isConstant()) {
+            throw new NumberFormatException("לא ניתן לשנות את הערך של קבוע");
         }
 
         if (this.dataMap.containsKey(newValue)) {

@@ -12,6 +12,15 @@ public class FloatVariable extends AbstractVariable<Float> implements NumericVar
         super(value);
     }
 
+    /**
+     * Constructor.
+     * @param value - The value of the variable.
+     * @param isConst - true IFF this variable is actually a const, meaning it cannot change it's value anymore.
+     */
+    public FloatVariable(String value, boolean isConst) {
+        super(value, isConst);
+    }
+
     @Override
     public String getValue() {
         return Float.toString(this.value);

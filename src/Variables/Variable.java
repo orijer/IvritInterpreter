@@ -1,7 +1,7 @@
 package Variables;
 
 /**
- * Represents a vaRiable created by the user in the .Ivrit file.
+ * Represents a variable created by the user in the .Ivrit file.
  */
 public interface Variable {
     /**
@@ -20,4 +20,9 @@ public interface Variable {
      * Returns a string containing the type of the variable.
      */
     public String getType();
+
+    /**
+     * Returns true IFF this is a constant, which means it cannot change it's value after initialization.
+     */
+    public boolean isConstant();
 }

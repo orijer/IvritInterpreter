@@ -15,6 +15,15 @@ public class BooleanVariable extends AbstractVariable<Boolean> {
         super(value);
     }
 
+    /**
+     * Constructor.
+     * @param value - The value of the variable.
+     * @param isConst - true IFF this variable is actually a const, meaning it cannot change it's value anymore.
+     */
+    public BooleanVariable(String value, boolean isConst) {
+        super(value, isConst);
+    }
+
     @Override
     public String getValue() {
         if (value) {
