@@ -8,6 +8,13 @@
             "type": "java",
             "name": "Main",
             "request": "launch",
+            "mainClass": "Main",
+            "projectName": "IvritInterpreter-1_b036cb00"
+        },
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
             "console": "internalConsole",
             "mainClass": "Main",
             "projectName": "IvritInterpreter_d6a06c5c"

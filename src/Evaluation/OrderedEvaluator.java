@@ -15,6 +15,7 @@ public abstract class OrderedEvaluator implements Evaluator {
         data = createBrackets(data);
 
         while (Evaluator.containsBracket(data)) {
+            System.out.println(data);
             data = simplifyBrackets(data);
         }
 
@@ -69,9 +70,29 @@ public abstract class OrderedEvaluator implements Evaluator {
      * (multiple words in the same string literal will remain in the same component)
      * @param segment - The segment to split.
      * @return an array of Strings that contains the components of the given string in the same order as the given string.
+     * @throws Exception
      */
     private String[] segmentSplit(String segment) {
         LinkedList<String> componentList = new LinkedList<String>();
+
+        if (segment.charAt(0) == '[') { // then this is an operation on a list:
+            int listEndsAt = segment.indexOf(']');
+            if (listEndsAt == -1)
+                throw new UnevenBracketsException(segment);
+
+            if (segment.indexOf('[', listEndsAt) != -1) //this is the only list here
+                throw new RuntimeException("");
+
+            componentList.add(segment.substring(0, listEndsAt+1).trim());
+            segment = segment.substring(listEndsAt+1).trim();
+            int operationEndsAt = segment.indexOf(' ');
+            if (operationEndsAt == -1)
+                throw new RuntimeException();
+            componentList.add(segment.substring(0, operationEndsAt).trim());
+            componentList.add(segment.substring(operationEndsAt+1).trim());
+            return componentList.toArray(new String[0]);
+        }
+
         boolean componentStarted = false;
         boolean inQuote = false;
 

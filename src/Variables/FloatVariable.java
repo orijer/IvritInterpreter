@@ -125,4 +125,9 @@ public class FloatVariable extends AbstractVariable<Float> implements NumericVar
 
         return new BooleanVariable(result);
     }
+
+    @Override
+    public FloatVariable createNewVariableWithSameType(String value){
+        return new FloatVariable(value);
+    }
 }

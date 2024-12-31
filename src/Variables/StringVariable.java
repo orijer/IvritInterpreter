@@ -10,6 +10,7 @@ public class StringVariable extends AbstractVariable<String> {
      */
     public StringVariable(String value) {
         super(value);
+        updateValue(value);
     }
 
     /**
@@ -19,6 +20,7 @@ public class StringVariable extends AbstractVariable<String> {
      */
     public StringVariable(String value, boolean isConst) {
         super(value, isConst);
+        updateValue(value);
     }
 
     @Override
@@ -39,6 +41,11 @@ public class StringVariable extends AbstractVariable<String> {
     @Override
     public String toString() {
         return this.value.substring(1, this.value.length() - 1);
+    }
+
+    @Override
+    public Variable createNewVariableWithSameType(String value){
+        return new StringVariable(value);
     }
 
     //Static methods:

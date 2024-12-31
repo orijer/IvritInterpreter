@@ -25,4 +25,9 @@ public interface Variable {
      * Returns true IFF this is a constant, which means it cannot change it's value after initialization.
      */
     public boolean isConstant();
+
+    /**
+     * Returns a new Variable object of the same the as the object this was called in.
+     */
+    public Variable createNewVariableWithSameType(String value);
 }

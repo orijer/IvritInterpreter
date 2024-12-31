@@ -51,6 +51,10 @@ public class VariableValueSwapper {
                 swappedLine.append(data.substring(0, endAt));
                 data = data.substring(endAt);
 
+            } else if (data.startsWith("במקום ")) {
+                swappedLine.append("במקום ");
+                data = data.substring(6);
+
             } else {
                 //We are reading a literal (non-string) value or a variable:
                 endAt = dataEndAt(data);

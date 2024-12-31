@@ -13,6 +13,7 @@ public class BooleanVariable extends AbstractVariable<Boolean> {
      */
     public BooleanVariable(String value) {
         super(value);
+        updateValue(value);
     }
 
     /**
@@ -22,6 +23,7 @@ public class BooleanVariable extends AbstractVariable<Boolean> {
      */
     public BooleanVariable(String value, boolean isConst) {
         super(value, isConst);
+        updateValue(value);
     }
 
     @Override
@@ -42,6 +44,11 @@ public class BooleanVariable extends AbstractVariable<Boolean> {
         } else {
             throw new NumberFormatException("הערך " + newValue + " לא מתאים למשתנה מסוג טענה.");
         }
+    }
+
+    @Override
+    public Variable createNewVariableWithSameType(String value){
+        return new BooleanVariable(value);
     }
 
     /**

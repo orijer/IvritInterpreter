@@ -10,8 +10,12 @@ public class NumericEvaluator extends OrderedEvaluator {
 
     @Override
     protected String evaluateComponents(String operation, String data1, String data2) {
-        NumericVariable resultVariable = VariablesFactory.createNumericVariableByValue(data1);
+        if (operation.equals("במקום")) { // list dereferencing
+            int index = Integer.parseInt(data1);
+            return ListDereferencer.dereferenceNonStringsList(data2, index);
+        }
 
+        NumericVariable resultVariable = VariablesFactory.createNumericVariableByValue(data1);
         switch (operation) {
             case "+":
                 resultVariable.add(data2);
@@ -24,7 +28,7 @@ public class NumericEvaluator extends OrderedEvaluator {
                 break;
             case "/":
                 resultVariable.divide(data2);
-                break;
+                break;                
             default:
                 throw new UnsupportedOperationException("הפעולה " + operation + " אינה מוכרת בחישוב ערך שלם.");
         }

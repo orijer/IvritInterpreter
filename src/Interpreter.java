@@ -48,8 +48,8 @@ public class Interpreter {
      */
     public void initializeGlobalVariables() {
         //Initialize global variables for true and false:
-        this.variableController.createVariable("אמת", "טענה", "אמת", true);
-        this.variableController.createVariable("שקר", "טענה", "שקר", true);
+        this.variableController.createVariable("אמת", "טענה", "אמת", false, true);
+        this.variableController.createVariable("שקר", "טענה", "שקר", false, true);
     }
 
     /**
@@ -155,19 +155,24 @@ public class Interpreter {
      */
     private void processVariableAction(String data) {
         String[] infoTokens = splitVariableInfo(data);
+        boolean isList = (infoTokens[3].equals("true"));
 
-        infoTokens[2] = this.evaluator.evaluate(infoTokens[2]);
-        this.variableController.createVariable(infoTokens[0], infoTokens[1], infoTokens[2], false);
+        if (!isList) { // TODO: support lists here. this will allow us to use create new lists from existing lists, and use existing variables when creating a list.
+            infoTokens[2] = this.evaluator.evaluate(infoTokens[2]);
+        }
+
+        this.variableController.createVariable(infoTokens[0], infoTokens[1], infoTokens[2], isList, false);
     }
 
     /**
-     * Processes the action of creating a new const.
+     * Processes the action of creating a new constant.
      */
     private void processConstantAction(String data) {
         String[] infoTokens = splitVariableInfo(data);
+        boolean isList = (infoTokens[3].equals("true"));
 
         infoTokens[2] = this.evaluator.evaluate(infoTokens[2]);
-        this.variableController.createVariable(infoTokens[0], infoTokens[1], infoTokens[2], true);
+        this.variableController.createVariable(infoTokens[0], infoTokens[1], infoTokens[2], isList, true);
     }
 
     /**
@@ -177,14 +182,28 @@ public class Interpreter {
      * [2]: the value of the variable.
      */
     private String[] splitVariableInfo(String variableInfo) {
-        String[] infoTokens = new String[3];
+        String[] infoTokens = new String[4];
         int cutAt = variableInfo.indexOf(' ');
 
-        infoTokens[1] = variableInfo.substring(0, cutAt).trim();
-        variableInfo = variableInfo.substring(cutAt + 1);
-        cutAt = variableInfo.indexOf('=');
-        infoTokens[0] = variableInfo.substring(0, cutAt - 1).trim();
-        infoTokens[2] = variableInfo.substring(cutAt + 1).trim();
+        String firstWord = variableInfo.substring(0, cutAt).trim(); // either a type string or a list string.
+
+        if (firstWord.equals("רשימה")) {
+            variableInfo = variableInfo.substring(cutAt + 1).trim(); // ignore the word: רשימה
+            cutAt = variableInfo.indexOf(' '); // search where the type word finishes
+            infoTokens[1] = variableInfo.substring(0, cutAt).trim();
+            variableInfo = variableInfo.substring(cutAt + 1).trim(); // ignore the type word
+            cutAt = variableInfo.indexOf('=');
+            infoTokens[0] = variableInfo.substring(0, cutAt - 1).trim();
+            infoTokens[2] = variableInfo.substring(cutAt + 1).trim();
+            infoTokens[3] = "true";
+        } else {
+            infoTokens[1] = firstWord;
+            variableInfo = variableInfo.substring(cutAt + 1).trim();
+            cutAt = variableInfo.indexOf('=');
+            infoTokens[0] = variableInfo.substring(0, cutAt - 1).trim();
+            infoTokens[2] = variableInfo.substring(cutAt + 1).trim();
+            infoTokens[3] = "false";
+        }
 
         return infoTokens;
     }

@@ -12,7 +12,6 @@ public abstract class AbstractVariable<T> implements Variable {
      * @param value - The value of the variable.
      */
     public AbstractVariable(String value) {
-        updateValue(value);
         this.isConst = false;
     }
 
@@ -22,7 +21,6 @@ public abstract class AbstractVariable<T> implements Variable {
      * @param isConst - true IFF the variable cannot change it's value anymore (it's a constant)
      */
     public AbstractVariable(String value, boolean isConst) {
-        updateValue(value);
         this.isConst = isConst;
     }
 

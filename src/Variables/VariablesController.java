@@ -31,17 +31,14 @@ public class VariablesController {
      * @param variableType - The type of the new variable.
      * @param variableValue - the value of the new variable.
      */
-    public void createVariable(String variableName, String variableType, String variableValue, boolean isConstant) {
+    public void createVariable(String variableName, String variableType, String variableValue, boolean isList, boolean isConstant) {
         Variable variable;
         if (this.dataMap.containsKey(variableValue)) {
-            //If we are assigning a variable to this (we only copy by value):
-            variable = VariablesFactory.createVariable(variableType, this.dataMap.get(variableValue).getValue(), isConstant);
-
-        } else {
-            //We are creating a variable from the value:
-            variable = VariablesFactory.createVariable(variableType, variableValue, isConstant);
-
+            // if the value is the name of an existing variable, we first dereference it
+            variableValue = this.dataMap.get(variableValue).getValue();
         }
+        
+        variable = VariablesFactory.createVariable(variableType, variableValue, isList, isConstant);
 
         this.dataMap.put(variableName, variable);
     }

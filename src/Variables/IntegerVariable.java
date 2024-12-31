@@ -10,6 +10,7 @@ public class IntegerVariable extends AbstractVariable<Integer> implements Numeri
      */
     public IntegerVariable(String value) {
         super(value);
+        updateValue(value);
     }
 
     /**
@@ -19,6 +20,7 @@ public class IntegerVariable extends AbstractVariable<Integer> implements Numeri
      */
     public IntegerVariable(String value, boolean isConst) {
         super(value, isConst);
+        updateValue(value);
     }
 
     @Override
@@ -132,5 +134,10 @@ public class IntegerVariable extends AbstractVariable<Integer> implements Numeri
             throw new ClassCastException("לא ניתן להשוות משתנה מסוג שלם לערך " + value);
 
         return new BooleanVariable(result);
+    }
+
+    @Override
+    public Variable createNewVariableWithSameType(String value){
+        return new IntegerVariable(value);
     }
 }
