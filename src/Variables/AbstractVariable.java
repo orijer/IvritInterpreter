@@ -38,6 +38,13 @@ public abstract class AbstractVariable<T> implements Variable {
         return this.isConst;
     }
 
+    /**
+     * @return true IFF this variable is a list of some type.
+     */
+    public boolean isList() {
+        return false;
+    }
+
     @Override
     public String toString() {
         return getValue();

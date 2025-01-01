@@ -18,6 +18,16 @@ public class StringEvaluator implements Evaluator{
      * @throws AnotherValueExpectedException when the line ended while we were expecting another value.
      */
     public String evaluate(String originalData) {
+        if (originalData.trim().startsWith("[")) {
+            if (originalData.trim().endsWith("]")) { // just a list variable here
+                return originalData;
+            } else { // value at a specific index:
+                String list = originalData.substring(0, originalData.indexOf("]")+1);
+                int index = Integer.parseInt(originalData.substring(originalData.indexOf("]")+7).trim());
+                return ListDereferencer.dereferenceStringsList(list, index);
+            }
+        }
+
         String line = originalData; //We want to keep the original data to be used when throwing an exception.
         StringBuilder result = new StringBuilder();
         result.append('"');

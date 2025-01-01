@@ -71,7 +71,7 @@ public class ListVariable<T extends Variable> extends AbstractVariable<List<T>> 
                 String[] values = newValue.split(",");
                 for (String value : values) {
                     @SuppressWarnings("unchecked") // createNewVariableWithSameType on an object of type T, returns an object of type T!
-                    T item = (T) classVar.createNewVariableWithSameType(value.trim());
+                    T item = (T) this.classVar.createNewVariableWithSameType(value.trim());
                     this.value.add(item);
                 }
             }
@@ -87,8 +87,38 @@ public class ListVariable<T extends Variable> extends AbstractVariable<List<T>> 
         return this.value.get(index-1); // since in Ivrit we start indexing lists from 1.
     }
 
+    public void updateValueAtIndex(int index, String newValue) {
+        if (index < 1 || index > this.value.size()) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        this.value.get(index-1).updateValue(newValue);
+    }
+
+    public void addValueAtIndex(String stringIndex, String value) {
+        int index = 0;
+        if (stringIndex.equals("end")) {
+            index = this.value.size()+1;
+        } else {
+            index = Integer.parseInt(stringIndex);
+        }
+
+        if (index < 1 || index > this.value.size() + 1) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        @SuppressWarnings("unchecked") // createNewVariableWithSameType on an object of type T, returns an object of type T!
+        T item = (T) classVar.createNewVariableWithSameType(value.trim());
+        this.value.add(index-1, item);
+    }
+
     public void insertAtIndex(int index) {
         // TODO: do we want the input as T or as a string?
+    }
+
+    @Override
+    public boolean isList() {
+        return true;
     }
 
     /**

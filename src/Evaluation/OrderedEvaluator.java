@@ -15,7 +15,6 @@ public abstract class OrderedEvaluator implements Evaluator {
         data = createBrackets(data);
 
         while (Evaluator.containsBracket(data)) {
-            System.out.println(data);
             data = simplifyBrackets(data);
         }
 

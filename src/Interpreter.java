@@ -124,6 +124,9 @@ public class Interpreter {
             case "קלוט-ל":
                 processInputAction(line.substring(line.indexOf(' ') + 1));
                 break;
+            case "הוסף":
+                processAddAction(line.substring(5).trim());
+                break;
             case "צא":
                 return false;
             default:
@@ -265,12 +268,48 @@ public class Interpreter {
     }
 
     /**
+     * Processes adding a value to a list.
+     * @param line - The line the describes what value to add, where to add it, and to which list to add it.
+     */
+    private void processAddAction(String line) {
+        String target = line.substring(line.lastIndexOf(' ')+1).trim(); 
+        line = line.substring(0, line.lastIndexOf(' ')).trim();
+        
+        if (line.endsWith("לתחילת") || line.endsWith("בתחילת")) {
+            line = line.substring(0, line.lastIndexOf(' ')).trim();
+            this.variableController.addToListVariable(target, "1", line);
+        } else if (line.endsWith("לסוף") || line.endsWith("בסוף")) {
+            line = line.substring(0, line.lastIndexOf(' ')).trim();
+            this.variableController.addToListVariable(target, "end", line);
+        } else if (line.endsWith("של") || line.endsWith("של")) { // adding to the middle of a list
+            line = line.substring(0, line.lastIndexOf(' ')).trim();
+            String[] values = line.split("במקום");
+            this.variableController.addToListVariable(target, values[1].trim(), values[0].trim());;
+        } else {
+            throw new UnsupportedActionException(line);
+        }
+    }
+
+    /**
      * Processes the assignment action.
      * @param data - The data to assign.
      * @param variableName - The name of the variable to assign to.
      * @throws UnsupportedCompoundAssignmentException when the compound assignment attempted is not supported in Ivrit.
      */
     private void processAssignmentAction(String data, String variableName) {
+        if (this.variableController.isList(variableName) && data.startsWith("במקום")) {
+            data = data.substring(6); //ignore במקום
+            int charAt = data.indexOf('=');
+            if (charAt == -1) {
+                throw new RuntimeException();
+            }
+
+            int index = Integer.parseInt(data.substring(0, charAt).trim());
+            String newValue = this.evaluator.evaluate(data.substring(charAt+1).trim());
+            this.variableController.updateListVariable(variableName, index, newValue);
+            return;
+        }
+
         char assignmentType = data.charAt(0);
         data = data.substring(1).trim();
         String newValue;

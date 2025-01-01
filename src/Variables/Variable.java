@@ -27,6 +27,11 @@ public interface Variable {
     public boolean isConstant();
 
     /**
+     * @return true IFF this variable is a list of some type.
+     */
+    public boolean isList();
+
+    /**
      * Returns a new Variable object of the same the as the object this was called in.
      */
     public Variable createNewVariableWithSameType(String value);

@@ -10,6 +10,7 @@ public class FloatVariable extends AbstractVariable<Float> implements NumericVar
      */
     public FloatVariable(String value) {
         super(value);
+        updateValue(value);
     }
 
     /**
@@ -19,6 +20,7 @@ public class FloatVariable extends AbstractVariable<Float> implements NumericVar
      */
     public FloatVariable(String value, boolean isConst) {
         super(value, isConst);
+        updateValue(value);
     }
 
     @Override
@@ -128,6 +130,7 @@ public class FloatVariable extends AbstractVariable<Float> implements NumericVar
 
     @Override
     public FloatVariable createNewVariableWithSameType(String value){
-        return new FloatVariable(value);
+        FloatVariable item = new FloatVariable(value);
+        return item;
     }
 }

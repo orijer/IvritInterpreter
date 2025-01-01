@@ -26,6 +26,14 @@ public class VariablesController {
     }
 
     /**
+     * @param name - The name of a variable we want to check whther it is a list or not.
+     * @return true IFF there is a variable with the name name that is a list.
+     */
+    public boolean isList(String name) {
+        return this.dataMap.get(name).isList();
+    }
+
+    /**
      * Creates a new variable.
      * @param variableName - The name of the new variable.
      * @param variableType - The type of the new variable.
@@ -80,6 +88,36 @@ public class VariablesController {
             variable.updateValue(newValue);
 
         }
+    }
+    
+    /**
+     * Updates an item from a list at a specific index.
+     * @param variableName
+     * @param index
+     * @param newValue
+     */
+    public void updateListVariable(String variableName, int index, String newValue) {
+        if (!dataMap.get(variableName).isList()) {
+            throw new RuntimeException(); //we can only apply this on a list!
+        }
+
+        ListVariable lst = (ListVariable) this.dataMap.get(variableName);
+        lst.updateValueAtIndex(index, newValue);
+    }
+
+    /**
+     * Adds a new item to the list at a specific index (the first index is always 1).
+     * @param variableName
+     * @param index
+     * @param value
+     */
+    public void addToListVariable(String variableName, String index, String value) {
+        if (!dataMap.get(variableName).isList()) {
+            throw new RuntimeException(); //we can only apply this on a list!
+        }
+
+        ListVariable lst = (ListVariable) this.dataMap.get(variableName);
+        lst.addValueAtIndex(index, value);
     }
 
     /**
