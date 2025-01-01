@@ -1,9 +1,5 @@
 package Evaluation;
 
-import IvritExceptions.InterpreterExceptions.EvaluatorExceptions.AnotherValueExpectedException;
-import IvritExceptions.InterpreterExceptions.EvaluatorExceptions.IllegalStringPlusOperatorException;
-import IvritExceptions.InterpreterExceptions.EvaluatorExceptions.UnexpectedStringException;
-
 /**
  * An evaluator that specializes in evaluating string expressions.
  */
@@ -13,9 +9,9 @@ public class StringEvaluator implements Evaluator{
      * Evaluates the value of a string.
      * @param originalData - The line we want to evaluate.
      * @return the value of the given string.
-     * @throws UnexpectedStringException when there is no '+' before a literal string or a variable.
-     * @throws IllegalStringPlusOperatorException when reading a '+' where it doesn't fit (example: two '+' in a row).
-     * @throws AnotherValueExpectedException when the line ended while we were expecting another value.
+     * @throws IllegalArgumentException when there is no '+' before a literal string or a variable.
+     * @throws UnsupportedOperationException when reading a '+' where it doesn't fit (example: two '+' in a row).
+     * @throws IllegalArgumentException when the line ended while we were expecting another value.
      */
     public String evaluate(String originalData) {
         if (originalData.trim().startsWith("[")) {
@@ -40,11 +36,11 @@ public class StringEvaluator implements Evaluator{
                 line = line.substring(1);
 
             } else if (line.charAt(0) == '"') {
-                //We have a string literal:
+                // We have a string literal:
                 cutAt = line.indexOf('"', 1);
 
                 if (!shouldAdd) {
-                    throw new UnexpectedStringException(originalData);
+                    throw new IllegalArgumentException("שגיאה: מחרוזת נכתבה ללא + מתאים לפניה בשורה '" + originalData + "'.");
                 }
 
                 result.append(line.substring(1, cutAt));
@@ -52,9 +48,9 @@ public class StringEvaluator implements Evaluator{
                 line = line.substring(cutAt + 1);
 
             } else if (line.charAt(0) == '+') {
-                //We read the + operator:
+                // We read the + operator:
                 if (shouldAdd) {
-                    throw new IllegalStringPlusOperatorException(originalData);
+                    throw new UnsupportedOperationException("שגיאה: נמצאה פעולת + במקום מידע להוספה בשורה '" + originalData + "'.");
                 }
 
                 shouldAdd = true;
@@ -75,7 +71,7 @@ public class StringEvaluator implements Evaluator{
 
         if (shouldAdd) {
             //We were expecting another value before ending:
-            throw new AnotherValueExpectedException(originalData);
+            throw new IllegalArgumentException("שגיאה: נמצאה פעולת + במקום מידע להוספה בשורה '" + originalData + "'.");
         }
 
         result.append('"');

@@ -2,8 +2,7 @@ package Evaluation;
 
 import java.util.LinkedList;
 
-import IvritExceptions.InterpreterExceptions.EvaluatorExceptions.UnevenBracketsException;
-import IvritExceptions.InterpreterExceptions.EvaluatorExceptions.UnknownEvaluationFormatException;
+import IvritExceptions.UnevenBracketsException;
 
 /**
  * An abstract class for all the evaluators that first create brackets in the data, 
@@ -26,7 +25,7 @@ public abstract class OrderedEvaluator implements Evaluator {
     * @param data - The line containing a bracket to simplify.
     * @return a new simplified string after the most right brackets were simplified.
     * @throws UnevenBracketsException when the given string contains exactly one side of brackets and not both.
-    * @throws UnknownEvaluationFormatException when the bracketed data isn't in the form of: data, operation, data.
+    * @throws IllegalArgumentException when the bracketed data isn't in the form of: data, operation, data.
     */
     protected String simplifyBrackets(String originalData) {
         String data = originalData; //We want to keep the original data to be used when throwing an exception.
@@ -57,7 +56,7 @@ public abstract class OrderedEvaluator implements Evaluator {
 
         } else {
             //We dont know how to evaluate this... probably a mistake from the user:
-            throw new UnknownEvaluationFormatException(components.length, segment, originalData);
+            throw new IllegalArgumentException("שגיאה: בעיה בפרומט בשורה '" + originalData + "'. בקטע שחושב '" + segment + "'צופה לקבל 3 ערכים ונמצאו " + components.length + ".");
         }
 
         result.replace(start, end + 1, simplificationResult);

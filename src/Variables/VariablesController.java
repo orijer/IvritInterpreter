@@ -58,7 +58,7 @@ public class VariablesController {
      */
     public void deleteVariable(String variableName) {
         if (!this.dataMap.containsKey(variableName))
-            throw new NullPointerException("לא נמצא משתנה בשם: " + variableName);
+            throw new NullPointerException("שגיאה: לא נמצא משתנה בשם '" + variableName + "'.");
 
         this.dataMap.remove(variableName);
     }
@@ -73,11 +73,11 @@ public class VariablesController {
     public void updateVariable(String variableName, String newValue) {
         Variable variable = this.dataMap.get(variableName);
         if (variable == null) {
-            throw new NullPointerException("לא נמצא משתנה בשם: " + variableName);
+            throw new NullPointerException("שגיאה: לא נמצא משתנה בשם '" + variableName + "'.");
         }
 
         if (variable.isConstant()) {
-            throw new NumberFormatException("לא ניתן לשנות את הערך של קבוע");
+            throw new NumberFormatException("שגיאה: לא ניתן לשנות את הערך של קבוע '" + variableName + "'.");
         }
 
         if (this.dataMap.containsKey(newValue)) {
@@ -86,37 +86,44 @@ public class VariablesController {
         } else {
             //We are updating from the value:
             variable.updateValue(newValue);
-
         }
     }
     
     /**
      * Updates an item from a list at a specific index.
-     * @param variableName
-     * @param index
-     * @param newValue
+     * @param variableName - The name of the list variable.
+     * @param index - The index we want to update. We start counting from 1 (so index 1 is the first index, unlike most languages).
+     * @param newValue - The new value to use in that index of the list.
+     * @throws NullPointerException if variableName is not a actually the name of a variable that is a list.
      */
     public void updateListVariable(String variableName, int index, String newValue) {
-        if (!dataMap.get(variableName).isList()) {
-            throw new RuntimeException(); //we can only apply this on a list!
-        }
+        Variable variable = dataMap.get(variableName);
+        if (variable == null) 
+            throw new NullPointerException("שגיאה: לא קיים משתנה בשם '" + variableName + "'.");
 
-        ListVariable lst = (ListVariable) this.dataMap.get(variableName);
+        if (!variable.isList())
+            throw new NullPointerException("שגיאה: אי אפשר לעדכן איבר במשתנה '" + variableName + "' שאינו רשימה.");
+
+        ListVariable<?> lst = (ListVariable<?>) variable;
         lst.updateValueAtIndex(index, newValue);
     }
 
     /**
      * Adds a new item to the list at a specific index (the first index is always 1).
-     * @param variableName
-     * @param index
-     * @param value
+     * @param variableName - The name of the list variable.
+     * @param index - The index we want the new item to be. "1" means we want it as the first element in the result. "end" means we want it to be the last.
+     * @param value - The value to be inserted.
+     * @throws NullPointerException if variableName is not a actually the name of a variable that is a list.
      */
     public void addToListVariable(String variableName, String index, String value) {
-        if (!dataMap.get(variableName).isList()) {
-            throw new RuntimeException(); //we can only apply this on a list!
-        }
+        Variable variable = dataMap.get(variableName);
+        if (variable == null) 
+            throw new NullPointerException("שגיאה: לא קיים משתנה בשם '" + variableName + "'.");
 
-        ListVariable lst = (ListVariable) this.dataMap.get(variableName);
+        if (!variable.isList()) 
+            throw new NullPointerException("שגיאה: אי אפשר להוסיף איבר למשתנה '" + variableName + "' שאינו רשימה.");
+
+        ListVariable<?> lst = (ListVariable<?>) variable;
         lst.addValueAtIndex(index, value);
     }
 
@@ -127,9 +134,8 @@ public class VariablesController {
      */
     public String getVariableValue(String variableName) {
         Variable variable = this.dataMap.get(variableName);
-        if (variable == null) {
-            throw new NullPointerException("לא נמצא משתנה בשם: " + variableName);
-        }
+        if (variable == null)
+            throw new NullPointerException("שגיאה: לא קיים משתנה בשם '" + variableName + "'.");
 
         return variable.getValue();
     }

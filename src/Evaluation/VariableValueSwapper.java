@@ -3,7 +3,7 @@ package Evaluation;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-import IvritExceptions.InterpreterExceptions.EvaluatorExceptions.UnevenBracketsException;
+import IvritExceptions.UnevenBracketsException;
 import Variables.BooleanVariable;
 import Variables.FloatVariable;
 import Variables.IntegerVariable;

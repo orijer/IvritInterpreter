@@ -1,11 +1,8 @@
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import Evaluation.EvaluationController;
-
-import IvritExceptions.InterpreterExceptions.GeneralInterpreterException;
-import IvritExceptions.InterpreterExceptions.UnsupportedActionException;
-import IvritExceptions.InterpreterExceptions.UnsupportedCompoundAssignmentException;
 
 import IvritStreams.RestartableBufferedReader;
 import IvritStreams.RestartableReader;
@@ -54,7 +51,7 @@ public class Interpreter {
 
     /**
      * Starts interpreting the file.
-     * @throws GeneralInterpreterException when an exception that cannot be traced happened during interpretation.
+     * @throws UncheckedIOException when an exception that cannot be traced happened during interpretation.
      */
     public void start() {
         System.out.println("מתחיל לפרש את הקובץ: " + this.preprocessedFile.getName());
@@ -76,14 +73,13 @@ public class Interpreter {
             }
         } catch (IOException exception) {
             //We cant really recover if we cant read from the source file...
-            throw new GeneralInterpreterException(exception);
+            throw new UncheckedIOException("שגיאה: המפרש נכשל במהלך הריצה. ודאו שהקובץ אכן בפורמט הנכון.", exception);
         }
 
-        if (continueProcessing)
-            System.out.println("פירוש הקובץ הסתיים לאחר שנקרא כל הקובץ (לא עברנו דרך 'צא')");
-        else
-            System.out.println("פירוש הקובץ הסתיים לאחר שעברנו דרך המילה 'צא'");
-
+        if (continueProcessing) {
+            System.out.println("\nפירוש הקובץ הסתיים לאחר שנקרא כל הקובץ (לא עברנו דרך 'צא')");
+        } else
+            System.out.println("\nפירוש הקובץ הסתיים לאחר שעברנו דרך המילה 'צא'");
         
         System.out.println("המשתנים שנותרו לאחר סיום התכנית: ");
         this.variableController.printVariables();
@@ -104,25 +100,25 @@ public class Interpreter {
 
         switch (action) {
             case "הדפס":
-                processPrintAction(line.substring(line.indexOf(' ') + 1));
+                processPrintAction(line.substring(endAt + 1));
                 break;
             case "משתנה":
-                processVariableAction(line.substring(line.indexOf(' ') + 1));
+                processVariableAction(line.substring(endAt + 1));
                 break;
             case "קבוע":
-                processConstantAction(line.substring(line.indexOf(' ') + 1));
+                processConstantAction(line.substring(endAt + 1));
                 break;
             case "מחק":
-                processDeleteAction(line.substring(line.indexOf(' ') + 1).trim());
+                processDeleteAction(line.substring(endAt + 1).trim());
                 break;
             case "אם":
                 processIfAction(line);
                 break;
             case "קפוץ-ל":
-                processJumpAction(line.substring(line.indexOf(' ') + 1));
+                processJumpAction(line.substring(endAt + 1));
                 break;
             case "קלוט-ל":
-                processInputAction(line.substring(line.indexOf(' ') + 1));
+                processInputAction(line.substring(endAt + 1));
                 break;
             case "הוסף":
                 processAddAction(line.substring(5).trim());
@@ -131,13 +127,10 @@ public class Interpreter {
                 return false;
             default:
                 if (this.variableController.isVariable(action)) {
-                    //It is a variable, than we are just assinging to it: 
-                    
-                    //TODO: we might want to support ++ later, which this misses... maybe split it another way?
-                    processAssignmentAction(line.substring(line.indexOf(' ') + 1), action);
+                    //It is a variable, than we are just assigning to it: 
+                    processAssignmentAction(line.substring(endAt + 1), action);
                 } else {
-                    //Unable to recognize what the action was:
-                    throw new UnsupportedActionException(action);
+                    throw new UnsupportedOperationException("שגיאה: הפירוש נתקע במילה הלא מוכרת '" + action + "' בשורה '" + originalLine + "'");
                 }
                 break;
         }
@@ -160,7 +153,8 @@ public class Interpreter {
         String[] infoTokens = splitVariableInfo(data);
         boolean isList = (infoTokens[3].equals("true"));
 
-        if (!isList) { // TODO: support lists here. this will allow us to use create new lists from existing lists, and use existing variables when creating a list.
+        if (!isList) {
+            // lists dont evaluate to anything...
             infoTokens[2] = this.evaluator.evaluate(infoTokens[2]);
         }
 
@@ -183,6 +177,7 @@ public class Interpreter {
      * [0]: the name of the variable.
      * [1]: the type of the variable.
      * [2]: the value of the variable.
+     * [3]: true IFF the info belongs to a list variable.
      */
     private String[] splitVariableInfo(String variableInfo) {
         String[] infoTokens = new String[4];
@@ -199,7 +194,8 @@ public class Interpreter {
             infoTokens[0] = variableInfo.substring(0, cutAt - 1).trim();
             infoTokens[2] = variableInfo.substring(cutAt + 1).trim();
             infoTokens[3] = "true";
-        } else {
+
+        } else { // regular variables (non lists)
             infoTokens[1] = firstWord;
             variableInfo = variableInfo.substring(cutAt + 1).trim();
             cutAt = variableInfo.indexOf('=');
@@ -222,15 +218,43 @@ public class Interpreter {
     /**
      * Processes the if action.
      * @param line -The line of the if statement.
+     * @throws IllegalArgumentException if any of the if-then-else-finally parts are missing.
      */
     private void processIfAction(String line) {
-        String condition = line.substring(line.indexOf("אם") + 2, line.indexOf("אז")).trim();
+        int ifIndex = line.indexOf("אם");
+        if (ifIndex == -1)
+            throw new IllegalArgumentException("שגיאה: חסר 'אם' בשורה '" + line + "'.");
+
+        int thenIndex = line.indexOf("אז");
+        if (thenIndex == -1)
+            throw new IllegalArgumentException("שגיאה: חסר 'אז' בשורה '" + line + "'.");
+
+        String condition = line.substring(ifIndex + 2, thenIndex).trim();
         condition = this.evaluator.evaluate(condition);
 
         //Get the flags for the different parts:
-        String thenFlag = line.substring(line.indexOf("אז") + 2, line.indexOf(',')).trim();
-        String elseFlag = line.substring(line.indexOf("אחרת") + 4, line.lastIndexOf(',')).trim();
-        String endFlag = line.substring(line.indexOf("בסוף") + 4).trim();
+        int firstCommaIndex = line.indexOf(',');
+        if (firstCommaIndex == -1)
+            throw new IllegalArgumentException("שגיאה: חסר פסיק אחרי סוף תגית ה-'אז' בשורה '" + line + "'.");
+
+        int secondCommaIndex = line.lastIndexOf(',');
+        if (secondCommaIndex == -1)
+            throw new IllegalArgumentException("שגיאה: חסר פסיק אחרי סוף תגית ה-'אחרת' בשורה '" + line + "'.");
+
+        int elseIndex = line.indexOf("אחרת");
+        if (elseIndex == -1)
+            throw new IllegalArgumentException("שגיאה: חסר 'אחרת' בשורה '" + line + "'.");
+
+        int finallyIndex = line.indexOf("בסוף");
+        if (finallyIndex == -1)
+            throw new IllegalArgumentException("שגיאה: חסר 'אחרת' בשורה '" + line + "'.");
+        
+        if (firstCommaIndex == secondCommaIndex)
+            throw new IllegalArgumentException("שגיאה: חייבים להיות שני פסיקים בשורה '" + line + "'.");
+
+        String thenFlag = line.substring(thenIndex + 2, firstCommaIndex).trim();
+        String elseFlag = line.substring(elseIndex + 4, secondCommaIndex).trim();
+        String endFlag = line.substring(finallyIndex + 4).trim();
 
         //Delete the @ at the start of each flag:
         thenFlag = thenFlag.substring(1);
@@ -286,7 +310,7 @@ public class Interpreter {
             String[] values = line.split("במקום");
             this.variableController.addToListVariable(target, values[1].trim(), values[0].trim());;
         } else {
-            throw new UnsupportedActionException(line);
+            throw new UnsupportedOperationException("שגיאה: הפירוש נתקע בקטע הלא החוקי '" + line + "' בזמן הוספה לרשימה.");
         }
     }
 
@@ -294,14 +318,14 @@ public class Interpreter {
      * Processes the assignment action.
      * @param data - The data to assign.
      * @param variableName - The name of the variable to assign to.
-     * @throws UnsupportedCompoundAssignmentException when the compound assignment attempted is not supported in Ivrit.
+     * @throws UnsupportedOperationException when the compound assignment attempted is not supported in Ivrit.
      */
     private void processAssignmentAction(String data, String variableName) {
         if (this.variableController.isList(variableName) && data.startsWith("במקום")) {
             data = data.substring(6); //ignore במקום
             int charAt = data.indexOf('=');
             if (charAt == -1) {
-                throw new RuntimeException();
+                throw new UnsupportedOperationException("שגיאה: נמצאה השמה של המשתנה '" + variableName + "' שבה לא היה הסימן שווה (=).");
             }
 
             int index = Integer.parseInt(data.substring(0, charAt).trim());
@@ -346,7 +370,7 @@ public class Interpreter {
                 newValue = this.evaluator.evaluate('(' + data + " / " + variableName + ')');
                 break;
             default:
-                throw new UnsupportedCompoundAssignmentException(assignmentType, data);
+                throw new UnsupportedOperationException("שגיאה: התו " + assignmentType + " אינו חוקי לפני התו '=' בפעולת השמה בקטע " + data);
         }
 
         this.variableController.updateVariable(variableName, newValue);

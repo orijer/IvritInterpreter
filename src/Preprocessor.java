@@ -1,9 +1,8 @@
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import IvritExceptions.PreprocessingExceptions.GeneralPreprocessingException;
 
 import IvritStreams.RestartableBufferedReader;
 
@@ -46,7 +45,7 @@ public class Preprocessor {
             System.out.println("העיבוד המקדים הסתיים.");
         } catch(IOException exception) {
             //We can't really recover if we can't read from the source file...
-            throw new GeneralPreprocessingException(exception);
+            throw new UncheckedIOException("שגיאה: העיבוד המקדים נכשל. בדוק שהקובץ אכן בפורמט הנכון!", exception);
         }
     }
 

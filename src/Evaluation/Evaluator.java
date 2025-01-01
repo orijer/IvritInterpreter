@@ -1,6 +1,6 @@
 package Evaluation;
 
-import IvritExceptions.InterpreterExceptions.EvaluatorExceptions.UnevenBracketsException;
+import IvritExceptions.UnevenBracketsException;
 
 /**
  * Each evaluator should specialize in evaluating a specific type of data string.

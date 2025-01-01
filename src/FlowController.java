@@ -27,7 +27,7 @@ public class FlowController {
     }
 
     /**
-     * Contains the logic for starting the interpreting process.
+     * Contains the logic for starting the interpretation process.
      * @throws GeneralFileRuntimeException when an exception that cannot be traces happened during runtime.
      */
     public void startIvritInterpreter(boolean isFirstRun) {
@@ -57,8 +57,8 @@ public class FlowController {
             interpreter.start();
 
         } catch (Exception exception) {
-            exception.printStackTrace();
-            System.out.println("ננסה להריץ קובץ מחדש: ");
+            System.out.println(exception.getMessage());
+            System.out.println("\nננסה להריץ קובץ מחדש: ");
             startIvritInterpreter(isFirstRun);
             return;
         }

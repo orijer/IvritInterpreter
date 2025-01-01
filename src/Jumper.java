@@ -1,9 +1,7 @@
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.Stack;
-
-import IvritExceptions.JumpExceptions.JumpFlagNotFoundException;
-import IvritExceptions.JumpExceptions.GeneralJumpException;
 
 import IvritStreams.RestartableReader;
 
@@ -39,11 +37,11 @@ public class Jumper {
      * Makes the active reader jump to the correct jump flag.
      * @param jumpFlag - The jump flag to jump to.
      * @throws NullPointerException when the given jumpFlag doesn't exist in the processed file.
-     * @throws GeneralJumpException when an exception that cannot be traced happened (but probably with the reader).
+     * @throws UncheckedIOException when an exception that cannot be traced happened (but probably with the reader).
      */
     public void activeReaderJumpTo(String jumpFlag) {
         if (!jumpMap.containsKey(jumpFlag))
-            throw new JumpFlagNotFoundException(jumpFlag);
+            throw new NullPointerException("שגיאה: לא נמצאה נקודת קפיצה בשם '" + jumpFlag + "''.");
 
         try {
             this.reader.restart();
@@ -52,12 +50,9 @@ public class Jumper {
                 reader.readLine();
             }
 
-        } catch (NullPointerException exception) {
-            throw new NullPointerException();
         } catch (IOException exception) {
-            throw new GeneralJumpException(jumpFlag, exception);
+            throw new UncheckedIOException("שגיאה: הקפיצה נתקלה בשגיאה אל נקודת הקפיצה '" + jumpFlag + "'.", exception);
         }
-
     }
 
     /**
