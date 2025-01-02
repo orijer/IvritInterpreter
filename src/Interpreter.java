@@ -61,6 +61,7 @@ public class Interpreter {
             this.jumper.setActiveReader(reader);
 
             String currentLine;
+            // Read the input line by line, an interpret it each time:
             while ((currentLine = reader.readLine()) != null && continueProcessing) {
                 //Handles jump flags:
                 if (currentLine.charAt(0) == JUMP_FLAG_CHAR) {
@@ -302,13 +303,16 @@ public class Interpreter {
         if (line.endsWith("לתחילת") || line.endsWith("בתחילת")) {
             line = line.substring(0, line.lastIndexOf(' ')).trim();
             this.variableController.addToListVariable(target, "1", line);
+
         } else if (line.endsWith("לסוף") || line.endsWith("בסוף")) {
             line = line.substring(0, line.lastIndexOf(' ')).trim();
             this.variableController.addToListVariable(target, "end", line);
+
         } else if (line.endsWith("של") || line.endsWith("של")) { // adding to the middle of a list
             line = line.substring(0, line.lastIndexOf(' ')).trim();
             String[] values = line.split("במקום");
-            this.variableController.addToListVariable(target, values[1].trim(), values[0].trim());;
+            this.variableController.addToListVariable(target, values[1].trim(), values[0].trim());
+
         } else {
             throw new UnsupportedOperationException("שגיאה: הפירוש נתקע בקטע הלא החוקי '" + line + "' בזמן הוספה לרשימה.");
         }
@@ -322,11 +326,11 @@ public class Interpreter {
      */
     private void processAssignmentAction(String data, String variableName) {
         if (this.variableController.isList(variableName) && data.startsWith("במקום")) {
+            // We are trying to assign inside a list:
             data = data.substring(6); //ignore במקום
             int charAt = data.indexOf('=');
-            if (charAt == -1) {
+            if (charAt == -1)
                 throw new UnsupportedOperationException("שגיאה: נמצאה השמה של המשתנה '" + variableName + "' שבה לא היה הסימן שווה (=).");
-            }
 
             int index = Integer.parseInt(data.substring(0, charAt).trim());
             String newValue = this.evaluator.evaluate(data.substring(charAt+1).trim());
@@ -334,6 +338,7 @@ public class Interpreter {
             return;
         }
 
+        // Assignment of a regular variable::
         char assignmentType = data.charAt(0);
         data = data.substring(1).trim();
         String newValue;

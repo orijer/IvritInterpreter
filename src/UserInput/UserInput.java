@@ -33,7 +33,7 @@ public class UserInput {
             this.lastUserInput = newInput;
             this.isUserInputAllowed = false;
         } else {
-            throw new UnsupportedOperationException("התקבל קלט משתמש ללא הכנה מוקדמת לכך");
+            throw new UnsupportedOperationException("שגיאה: התקבל קלט משתמש ללא הכנה מוקדמת לכך.");
         }
 
     }

@@ -9,18 +9,16 @@ public abstract class AbstractVariable<T> implements Variable {
 
     /**
      * Construtor.
-     * @param value - The value of the variable.
      */
-    public AbstractVariable(String value) {
+    public AbstractVariable() {
         this.isConst = false;
     }
 
     /**
      * Construtor.
-     * @param value - The value of the variable.
      * @param isConst - true IFF the variable cannot change it's value anymore (it's a constant)
      */
-    public AbstractVariable(String value, boolean isConst) {
+    public AbstractVariable(boolean isConst) {
         this.isConst = isConst;
     }
 

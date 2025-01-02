@@ -9,7 +9,7 @@ public class IntegerVariable extends AbstractVariable<Integer> implements Numeri
      * @param value - The value of the variable.
      */
     public IntegerVariable(String value) {
-        super(value);
+        super();
         updateValue(value);
     }
 
@@ -19,7 +19,7 @@ public class IntegerVariable extends AbstractVariable<Integer> implements Numeri
      * @param isConst - true IFF this variable is actually a const, meaning it cannot change it's value anymore.
      */
     public IntegerVariable(String value, boolean isConst) {
-        super(value, isConst);
+        super(isConst);
         updateValue(value);
     }
 
@@ -33,8 +33,13 @@ public class IntegerVariable extends AbstractVariable<Integer> implements Numeri
         try {
             this.value = Integer.parseInt(newValue);
         } catch (NumberFormatException exception) {
-            throw new NumberFormatException("הערך " + newValue + " לא מתאים למשתנה מסוג שלם.");
+            throw new NumberFormatException("שגיאה: הערך " + newValue + " לא מתאים למשתנה מסוג שלם.");
         }
+    }
+
+    @Override
+    public Variable createNewVariableWithSameType(String value) {
+        return new IntegerVariable(value);
     }
 
     /**
@@ -61,7 +66,7 @@ public class IntegerVariable extends AbstractVariable<Integer> implements Numeri
             this.value += (int) Float.parseFloat(value);
 
         } else
-            throw new ClassCastException("לא ניתן לחבר למשתנה מסוג שלם את הערך " + value);
+            throw new ClassCastException("שגיאה: לא ניתן לחבר למשתנה מסוג שלם את הערך " + value);
     }
 
     @Override
@@ -73,7 +78,7 @@ public class IntegerVariable extends AbstractVariable<Integer> implements Numeri
             this.value -= (int) Float.parseFloat(value);
 
         } else
-            throw new ClassCastException("לא ניתן לחסר ממשתנה מסוג שלם את הערך " + value);
+            throw new ClassCastException("שגיאה: לא ניתן לחסר ממשתנה מסוג שלם את הערך " + value);
     }
 
     @Override
@@ -85,7 +90,7 @@ public class IntegerVariable extends AbstractVariable<Integer> implements Numeri
             this.value *= (int) Float.parseFloat(value);
 
         } else
-            throw new ClassCastException("לא ניתן להכפיל משתנה מסוג שלם בערך " + value);
+            throw new ClassCastException("שגיאה: לא ניתן להכפיל משתנה מסוג שלם בערך " + value);
     }
 
     @Override
@@ -97,7 +102,7 @@ public class IntegerVariable extends AbstractVariable<Integer> implements Numeri
             this.value /= (int) Float.parseFloat(value);
 
         } else
-            throw new ClassCastException("לא ניתן לחלק משתנה מסוג שלם בערך " + value);
+            throw new ClassCastException("שגיאה: לא ניתן לחלק משתנה מסוג שלם בערך " + value);
     }
 
     @Override
@@ -113,7 +118,7 @@ public class IntegerVariable extends AbstractVariable<Integer> implements Numeri
                 result = "אמת";
 
         } else
-            throw new ClassCastException("לא ניתן להשוות משתנה מסוג שלם לערך " + value);
+            throw new ClassCastException("שגיאה: לא ניתן להשוות משתנה מסוג שלם לערך " + value);
 
         return new BooleanVariable(result);
     }
@@ -131,13 +136,8 @@ public class IntegerVariable extends AbstractVariable<Integer> implements Numeri
                 result = "אמת";
 
         } else
-            throw new ClassCastException("לא ניתן להשוות משתנה מסוג שלם לערך " + value);
+            throw new ClassCastException("שגיאה: לא ניתן להשוות משתנה מסוג שלם לערך " + value);
 
         return new BooleanVariable(result);
-    }
-
-    @Override
-    public Variable createNewVariableWithSameType(String value){
-        return new IntegerVariable(value);
     }
 }

@@ -8,7 +8,7 @@ public class VariablesFactory {
     private static final BooleanVariable boolCopy = new BooleanVariable("שקר");
     private static final IntegerVariable intCopy = new IntegerVariable("0");
     private static final FloatVariable floatCopy = new FloatVariable("0.0");
-    private static final StringVariable stringCopy = new StringVariable("\"a\"");
+    private static final StringVariable stringCopy = new StringVariable("\"\"");
 
     /**
      * @param type - The type of the variable

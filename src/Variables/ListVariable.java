@@ -12,7 +12,7 @@ public class ListVariable<T extends Variable> extends AbstractVariable<List<T>> 
      * @param value - The value of the variable.
      */
     public ListVariable(String value, T classVar) {
-        super(value);
+        super();
         this.classVar = classVar;
         updateValue(value);
     }
@@ -23,7 +23,7 @@ public class ListVariable<T extends Variable> extends AbstractVariable<List<T>> 
      * @param isConst - true IFF this variable is actually a const, meaning it cannot change it's value anymore.
      */
     public ListVariable(String value, boolean isConst, T classVar) {
-        super(value, isConst);
+        super(isConst);
         this.classVar = classVar;
         updateValue(value);
     }

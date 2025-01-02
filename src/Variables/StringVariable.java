@@ -9,7 +9,7 @@ public class StringVariable extends AbstractVariable<String> {
      * @param value - The value of the variable.
      */
     public StringVariable(String value) {
-        super(value);
+        super();
         updateValue(value);
     }
 
@@ -19,7 +19,7 @@ public class StringVariable extends AbstractVariable<String> {
      * @param isConst - true IFF this variable is actually a const, meaning it cannot change it's value anymore.
      */
     public StringVariable(String value, boolean isConst) {
-        super(value, isConst);
+        super(isConst);
         updateValue(value);
     }
 
@@ -34,7 +34,7 @@ public class StringVariable extends AbstractVariable<String> {
             this.value = newValue;
         } else {
             throw new NumberFormatException(
-                    "הערך " + newValue + " לא מתאים למשתנה מסוג משפט. ודאו שאכן השתמשתם במרכאות מסביב לקטע הרצוי.");
+                    "שגיאה: הערך " + newValue + " לא מתאים למשתנה מסוג משפט. ודאו שאכן השתמשתם במרכאות מסביב לקטע הרצוי.");
         }
     }
 

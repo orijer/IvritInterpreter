@@ -12,7 +12,7 @@ public class BooleanVariable extends AbstractVariable<Boolean> {
      * @param value - The value of the variable.
      */
     public BooleanVariable(String value) {
-        super(value);
+        super();
         updateValue(value);
     }
 
@@ -22,7 +22,7 @@ public class BooleanVariable extends AbstractVariable<Boolean> {
      * @param isConst - true IFF this variable is actually a const, meaning it cannot change it's value anymore.
      */
     public BooleanVariable(String value, boolean isConst) {
-        super(value, isConst);
+        super(isConst);
         updateValue(value);
     }
 
@@ -42,7 +42,7 @@ public class BooleanVariable extends AbstractVariable<Boolean> {
         } else if (newValue.equals("שקר")) {
             this.value = false;
         } else {
-            throw new NumberFormatException("הערך " + newValue + " לא מתאים למשתנה מסוג טענה.");
+            throw new NumberFormatException("שגיאה: הערך " + newValue + " לא מתאים למשתנה מסוג טענה.");
         }
     }
 

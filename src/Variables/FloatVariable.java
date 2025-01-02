@@ -9,7 +9,7 @@ public class FloatVariable extends AbstractVariable<Float> implements NumericVar
      * @param value - The value of the variable.
      */
     public FloatVariable(String value) {
-        super(value);
+        super();
         updateValue(value);
     }
 
@@ -19,7 +19,7 @@ public class FloatVariable extends AbstractVariable<Float> implements NumericVar
      * @param isConst - true IFF this variable is actually a const, meaning it cannot change it's value anymore.
      */
     public FloatVariable(String value, boolean isConst) {
-        super(value, isConst);
+        super(isConst);
         updateValue(value);
     }
 
@@ -33,7 +33,7 @@ public class FloatVariable extends AbstractVariable<Float> implements NumericVar
         try {
             this.value = Float.parseFloat(newValue);
         } catch (NumberFormatException exception) {
-            throw new NumberFormatException("הערך " + newValue + " לא מתאים למשתנה מסוג עשרוני.");
+            throw new NumberFormatException("שגיאה: הערך " + newValue + " לא מתאים למשתנה מסוג עשרוני.");
         }
     }
 
@@ -59,7 +59,7 @@ public class FloatVariable extends AbstractVariable<Float> implements NumericVar
         } else if (FloatVariable.isFloatValue(value)) {
             this.value += Float.parseFloat(value);
         } else
-            throw new ClassCastException("לא ניתן לחבר למשתנה מסוג עשרוני את הערך " + value);
+            throw new ClassCastException("שגיאה: לא ניתן לחבר למשתנה מסוג עשרוני את הערך " + value);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class FloatVariable extends AbstractVariable<Float> implements NumericVar
         } else if (FloatVariable.isFloatValue(value)) {
             this.value -= Float.parseFloat(value);
         } else
-            throw new ClassCastException("לא ניתן לחסר ממשתנה מסוג עשרוני את הערך " + value);
+            throw new ClassCastException("שגיאה: לא ניתן לחסר ממשתנה מסוג עשרוני את הערך " + value);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class FloatVariable extends AbstractVariable<Float> implements NumericVar
         } else if (FloatVariable.isFloatValue(value)) {
             this.value *= Float.parseFloat(value);
         } else
-            throw new ClassCastException("לא ניתן להכפיל משתנה מסוג עשרוני בערך " + value);
+            throw new ClassCastException("שגיאה: לא ניתן להכפיל משתנה מסוג עשרוני בערך " + value);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class FloatVariable extends AbstractVariable<Float> implements NumericVar
         } else if (FloatVariable.isFloatValue(value)) {
             this.value /= Float.parseFloat(value);
         } else
-            throw new ClassCastException("לא ניתן לחלק משתנה מסוג עשרוני בערך " + value);
+            throw new ClassCastException("שגיאה: לא ניתן לחלק משתנה מסוג עשרוני בערך " + value);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class FloatVariable extends AbstractVariable<Float> implements NumericVar
                 result = "אמת";
 
         } else
-            throw new ClassCastException("לא ניתן להשוות משתנה מסוג עשרוני לערך " + value);
+            throw new ClassCastException("שגיאה: לא ניתן להשוות משתנה מסוג עשרוני לערך " + value);
 
         return new BooleanVariable(result);
     }
@@ -123,7 +123,7 @@ public class FloatVariable extends AbstractVariable<Float> implements NumericVar
                 result = "אמת";
 
         } else
-            throw new ClassCastException("לא ניתן להשוות משתנה מסוג עשרוני לערך " + value);
+            throw new ClassCastException("שגיאה: לא ניתן להשוות משתנה מסוג עשרוני לערך " + value);
 
         return new BooleanVariable(result);
     }
