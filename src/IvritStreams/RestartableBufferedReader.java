@@ -37,9 +37,9 @@ public class RestartableBufferedReader implements RestartableReader {
             String line;
             do {
                 line = this.delegatedReader.readLine();
-                this.currentLine++;
             } while (line != null && (line.isBlank() || line.charAt(0) == '#'));
 
+            this.currentLine++;
             return line;
         }
 

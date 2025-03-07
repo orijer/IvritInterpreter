@@ -66,7 +66,7 @@ public class Jumper {
             throw new NullPointerException("שגיאה: לא נמצאה פונקציה בשם '" + function + "'.");
 
         try {
-            this.returnLinesStack.push(this.reader.getCurrentLine());
+            this.returnLinesStack.push(this.reader.getCurrentLine() + 1);
             this.reader.restart();
             int targetLineNumber = this.funcMap.get(function);
             for (int lineCounter = 0; lineCounter < targetLineNumber; lineCounter++) {

@@ -17,5 +17,5 @@ public interface RestartableReader extends Closeable{
      */
     public void restart() throws IOException;
 
-    public int getCurrentLine() throws IOException;
+    public int getCurrentLine();
 }
