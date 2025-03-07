@@ -9,12 +9,14 @@ import java.io.InputStreamReader;
  * A buffered reader that reads from a file, and can be restarted to the first line of the file.
  */
 public class RestartableBufferedReader implements RestartableReader {
-    //We delegate the reading itself to a buffered reader we save as a field:
+    // We delegate the reading itself to a buffered reader we save as a field:
     private BufferedReader delegatedReader;
-    //The file weare reading from:
+    // The file weare reading from:
     private File sourceFile;
-    //true IFF this reader is open (= usable):
+    // true IFF this reader is open (= usable):
     private boolean isOpen;
+    // The number of the next line to read from the source.
+    private int currentLine;
 
     /**
      * Constructor.
@@ -26,6 +28,7 @@ public class RestartableBufferedReader implements RestartableReader {
                         new FileInputStream(sourceFile), "UTF-8"));
         this.sourceFile = sourceFile;
         this.isOpen = true;
+        this.currentLine = 0;
     }
 
     @Override
@@ -34,6 +37,7 @@ public class RestartableBufferedReader implements RestartableReader {
             String line;
             do {
                 line = this.delegatedReader.readLine();
+                this.currentLine++;
             } while (line != null && (line.isBlank() || line.charAt(0) == '#'));
 
             return line;
@@ -48,6 +52,7 @@ public class RestartableBufferedReader implements RestartableReader {
             this.delegatedReader.close();
         }
 
+        this.currentLine = 0;
         this.delegatedReader = new BufferedReader(
                 new InputStreamReader(
                         new FileInputStream(sourceFile), "UTF-8"));
@@ -61,6 +66,11 @@ public class RestartableBufferedReader implements RestartableReader {
         }
 
         throw new IOException("הקורא הזה כבר סגור");
+    }
+
+    @Override
+    public int getCurrentLine() {
+        return this.currentLine;
     }
 
 }

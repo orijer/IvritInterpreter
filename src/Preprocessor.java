@@ -10,11 +10,13 @@ import IvritStreams.RestartableBufferedReader;
  * This reads an entire source file and processes whatever it needs for the interpreter to work later.
  */
 public class Preprocessor {
-    //The file to be preprocessed
+    // The file to be preprocessed
     private File sourceFile;    
-    //Contains a map that connects the titles for jumps,
-    //to how many lines need to be skipped in order to get to the correct line of code.
+    // Contains a map that connects the titles for jumps,
+    // to how many lines need to be skipped in order to get to the correct line of code.
     private Map<String, Integer> jumpMap;
+    // Maps between the function name and the line it's code starts at.
+    private Map<String, Integer> funcMap;
 
     /**
      * Constructor.
@@ -23,6 +25,7 @@ public class Preprocessor {
     public Preprocessor(File file){ //Maybe create a PreprocessingFailedException and throw that?
         this.sourceFile = file;
         this.jumpMap = new HashMap<>();
+        this.funcMap = new HashMap<>();
     }
 
     /**
@@ -37,7 +40,17 @@ public class Preprocessor {
             String currentLine;
             while ((currentLine = reader.readLine()) != null) {
                 if (currentLine.charAt(0) == Interpreter.JUMP_FLAG_CHAR) {
+                    // Handle jumps:
                     this.jumpMap.put(currentLine.substring(1), linesCounter);
+
+                } else if (currentLine.startsWith("פונקציה ")) {
+                    // Handle function definitions:
+                    String[] lineWords = currentLine.split(" ");
+                    if (lineWords.length < 6 || (!currentLine.contains("מקבלת")) || (!currentLine.contains("מחזירה"))) {
+                        throw new IOException("הגדרת הפונקציה בשורה " + linesCounter + " אינה תקינה.");
+                    }
+
+                    this.funcMap.put(lineWords[1], linesCounter);
                 }
 
                 linesCounter++;
@@ -53,7 +66,7 @@ public class Preprocessor {
      * @return a jumper object for the preprocessed file.
      */
     public Jumper generateJumper() {
-        return new Jumper(this.jumpMap);
+        return new Jumper(this.jumpMap, this.funcMap);
     }
 
     /**

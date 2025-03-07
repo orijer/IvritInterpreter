@@ -9,20 +9,26 @@ import IvritStreams.RestartableReader;
  * The object that handles jumping a RestartableReader to a jump flag.
  */
 public class Jumper {
-    //Contains a map that connects the jump flags to how many lines need to be skipped in order to get to the correct line of code.
+    // Contains a map that connects the jump flags to how many lines need to be skipped in order to get to the correct line of code.
     private Map<String, Integer> jumpMap;
-    //A stack that contains the links we are expecting to see in a LIFO order (Used in the if mechanism).
+    // A stack that contains the links we are expecting to see in a LIFO order (Used in the if mechanism).
     private Stack<JumpFlagLinker> jumpFlagsLinksStack;
-    //The active reader that needs to jump:
+    // Maps between the function name and the line it's code starts at.
+    private Map<String, Integer> funcMap;
+    // A stack that contains the function return lines (the top item is the number of the line a return should go back to).
+    private Stack<Integer> returnLinesStack;
+    // The active reader that needs to jump:
     private RestartableReader reader;
 
     /**
      * Constructor.
      * @param jumpMap - The map that connects jump flags to number of jumps to get to them.
      */
-    public Jumper(Map<String, Integer> jumpMap) {
+    public Jumper(Map<String, Integer> jumpMap, Map<String, Integer> funcMap) {
         this.jumpMap = jumpMap;
         this.jumpFlagsLinksStack = new Stack<JumpFlagLinker>();
+        this.funcMap = funcMap;
+        this.returnLinesStack = new Stack<>();
         this.reader = null;
     }
 
@@ -41,7 +47,7 @@ public class Jumper {
      */
     public void activeReaderJumpTo(String jumpFlag) {
         if (!jumpMap.containsKey(jumpFlag))
-            throw new NullPointerException("שגיאה: לא נמצאה נקודת קפיצה בשם '" + jumpFlag + "''.");
+            throw new NullPointerException("שגיאה: לא נמצאה נקודת קפיצה בשם '" + jumpFlag + "'.");
 
         try {
             this.reader.restart();
@@ -53,6 +59,40 @@ public class Jumper {
         } catch (IOException exception) {
             throw new UncheckedIOException("שגיאה: הקפיצה נתקלה בשגיאה אל נקודת הקפיצה '" + jumpFlag + "'.", exception);
         }
+    }
+
+    public void activeReaderStartFunction(String function) {
+        if (!funcMap.containsKey(function))
+            throw new NullPointerException("שגיאה: לא נמצאה פונקציה בשם '" + function + "'.");
+
+        try {
+            this.returnLinesStack.push(this.reader.getCurrentLine());
+            this.reader.restart();
+            int targetLineNumber = this.funcMap.get(function);
+            for (int lineCounter = 0; lineCounter < targetLineNumber; lineCounter++) {
+                reader.readLine();
+            }
+
+        } catch (IOException exception) {
+            throw new UncheckedIOException("שגיאה: הקפיצה נתקלה בשגיאה אל הפונקציה '" + function + "'.", exception);
+        } //TODO: this looks almost the same as activeReaderJumpTo.... maybe fix it?
+    }
+
+    public void activeReaderReturnToCaller() {
+        if (this.returnLinesStack.empty()) {
+            throw new NullPointerException("אי אפשר לחזור מהסקופ הגלובילי.");
+        }
+
+        int returnLine = this.returnLinesStack.pop();
+        try {
+            this.reader.restart();
+            for (int lineCounter = 1; lineCounter < returnLine; lineCounter++) {
+                reader.readLine();
+            }
+
+        } catch (IOException exception) {
+            throw new UncheckedIOException("שגיאה: חזרה מתוך פונקציה נכשלה.", exception);
+        } //TODO: this looks almost the same as activeReaderJumpTo.... maybe fix it?
     }
 
     /**

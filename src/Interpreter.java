@@ -118,6 +118,15 @@ public class Interpreter {
             case "קפוץ-ל":
                 processJumpAction(line.substring(endAt + 1));
                 break;
+            case "הפעל":
+                processCallFunctionAction(line.substring(endAt + 1));
+                break;
+            case "תחזיר":
+            case "תחזור":
+                if (endAt < line.length())
+                    processReturnAction(line.substring(endAt + 1));
+                else processReturnAction("");
+                break;
             case "קלוט-ל":
                 processInputAction(line.substring(endAt + 1));
                 break;
@@ -181,31 +190,36 @@ public class Interpreter {
      * [3]: true IFF the info belongs to a list variable.
      */
     private String[] splitVariableInfo(String variableInfo) {
-        String[] infoTokens = new String[4];
-        int cutAt = variableInfo.indexOf(' ');
+        String original = variableInfo;
+        try {
+            String[] infoTokens = new String[4];
+            int cutAt = variableInfo.indexOf(' ');
 
-        String firstWord = variableInfo.substring(0, cutAt).trim(); // either a type string or a list string.
+            String firstWord = variableInfo.substring(0, cutAt).trim(); // either a type string or a list string.
 
-        if (firstWord.equals("רשימה")) {
-            variableInfo = variableInfo.substring(cutAt + 1).trim(); // ignore the word: רשימה
-            cutAt = variableInfo.indexOf(' '); // search where the type word finishes
-            infoTokens[1] = variableInfo.substring(0, cutAt).trim();
-            variableInfo = variableInfo.substring(cutAt + 1).trim(); // ignore the type word
-            cutAt = variableInfo.indexOf('=');
-            infoTokens[0] = variableInfo.substring(0, cutAt - 1).trim();
-            infoTokens[2] = variableInfo.substring(cutAt + 1).trim();
-            infoTokens[3] = "true";
+            if (firstWord.equals("רשימה")) {
+                variableInfo = variableInfo.substring(cutAt + 1).trim(); // ignore the word: רשימה
+                cutAt = variableInfo.indexOf(' '); // search where the type word finishes
+                infoTokens[1] = variableInfo.substring(0, cutAt).trim();
+                variableInfo = variableInfo.substring(cutAt + 1).trim(); // ignore the type word
+                cutAt = variableInfo.indexOf('=');
+                infoTokens[0] = variableInfo.substring(0, cutAt - 1).trim();
+                infoTokens[2] = variableInfo.substring(cutAt + 1).trim();
+                infoTokens[3] = "true";
 
-        } else { // regular variables (non lists)
-            infoTokens[1] = firstWord;
-            variableInfo = variableInfo.substring(cutAt + 1).trim();
-            cutAt = variableInfo.indexOf('=');
-            infoTokens[0] = variableInfo.substring(0, cutAt - 1).trim();
-            infoTokens[2] = variableInfo.substring(cutAt + 1).trim();
-            infoTokens[3] = "false";
+            } else { // regular variables (non lists)
+                infoTokens[1] = firstWord;
+                variableInfo = variableInfo.substring(cutAt + 1).trim();
+                cutAt = variableInfo.indexOf('=');
+                infoTokens[0] = variableInfo.substring(0, cutAt - 1).trim();
+                infoTokens[2] = variableInfo.substring(cutAt + 1).trim();
+                infoTokens[3] = "false";
+            }
+
+            return infoTokens;
+        } catch (Exception e) {
+            throw new UncheckedIOException("שגיאה: נמצאה שגיאה בפענוח השורה '" + original + "'. ודאו שהשורה מתאימה לפורמט: משתנה טיפוס שם = ערך.", new IOException());
         }
-
-        return infoTokens;
     }
 
     /**
@@ -278,6 +292,19 @@ public class Interpreter {
      */
     private void processJumpAction(String jumpFlag) {
         this.jumper.activeReaderJumpTo(jumpFlag);
+    }
+
+    private void processCallFunctionAction(String callLine) {
+        this.jumper.activeReaderStartFunction(callLine);
+        this.variableController.createScope();
+    }
+
+    /**
+     * Processes the return to caller action.
+     */
+    private void processReturnAction(String returnValue) {
+        this.jumper.activeReaderReturnToCaller();
+        this.variableController.popScope();
     }
 
     /**

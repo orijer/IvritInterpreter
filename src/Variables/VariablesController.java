@@ -1,92 +1,104 @@
 package Variables;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
- * Stores the variables the user created and allows for fast lookup and updates for them. 
+ * Stores the scopes of the program, which contain the mappings between the variables to their values.
+ * This allows us declare the same variable twice in different scopes, and treat them as two different variables.
+ * Very useful in functions (for example, in parameters).
  */
 public class VariablesController {
-    //A map that connects between the name of the variable to its value:
-    private Map<String, Variable> dataMap;
+    //A list that contains all the scopes of the program.
+    private List<Scope> scopes;
 
     /**
      * Constructor.
      */
     public VariablesController() {
-        this.dataMap = new HashMap<>();
+        this.scopes = new LinkedList<>();
+        this.scopes.add(new Scope()); // The global scope.
     }
 
     /**
      * @param name - The name of the variable to check.
-     * @return true IFF there is already a variable with the given name stored.
+     * @return true IFF there is already a variable with the given name stored in some scope.
      */
     public boolean isVariable(String name) {
-        return this.dataMap.containsKey(name);
+        for (Scope scope : this.scopes) {
+            if (scope.isVariable(name))
+                return true;
+        }
+
+        return false;
     }
 
     /**
-     * @param name - The name of a variable we want to check whther it is a list or not.
-     * @return true IFF there is a variable with the name name that is a list.
+     * @param name - The name of a variable we want to check whether it is a list or not.
+     * @return true IFF there is a variable with the name name that is a list, and also it is the most recent variable with that name 
+     * (meaning it isn't hidden by a more recent non-list variable with the same name).
      */
     public boolean isList(String name) {
-        return this.dataMap.get(name).isList();
+        for (int i = this.scopes.size()-1; i>=0; i++) {
+            Scope scope = this.scopes.get(i);
+            if (scope.isVariable(name)) {
+                return scope.isList(name);
+            }
+        }
+
+        return false;
     }
 
     /**
-     * Creates a new variable.
+     * Creates a new variable in the most recent scope.
      * @param variableName - The name of the new variable.
      * @param variableType - The type of the new variable.
      * @param variableValue - the value of the new variable.
      */
     public void createVariable(String variableName, String variableType, String variableValue, boolean isList, boolean isConstant) {
-        Variable variable;
-        if (this.dataMap.containsKey(variableValue)) {
-            // if the value is the name of an existing variable, we first dereference it
-            variableValue = this.dataMap.get(variableValue).getValue();
-        }
-        
-        variable = VariablesFactory.createVariable(variableType, variableValue, isList, isConstant);
-
-        this.dataMap.put(variableName, variable);
+        this.scopes.get(this.scopes.size()-1).createVariable(variableName, variableType, variableValue, isList, isConstant);
     }
 
     /**
-     * Deletes the given variable from the program.
+     * Deletes the given variable from the most recent scope it exists in.
      * @param variableName - The name of the variable to delete.
      * @throws NullPointerException when variableName isn't the name of a variable. 
      */
     public void deleteVariable(String variableName) {
-        if (!this.dataMap.containsKey(variableName))
-            throw new NullPointerException("שגיאה: לא נמצא משתנה בשם '" + variableName + "'.");
+        for (int i = this.scopes.size() - 1; i >= 0; i++) {
+            Scope scope = this.scopes.get(i);
+            try {
+                scope.deleteVariable(variableName);
+                return; // return afer a successful deletion.
+            } catch (NullPointerException e) {
+                // Do nothing. There is no such variable in that scope.
+            }
+        }
 
-        this.dataMap.remove(variableName);
+        throw new NullPointerException("שגיאה: לא נמצא משתנה בשם '" + variableName + "'.");
     }
 
     /**
-     * Updates the value of an existing variable.
+     * Updates the value of an existing variable in the most recent scope it exists in.
      * @param variableName - The name of the variable to be updated.
      * @param newValue - The new value.
      * @throws NullPointerException when variableName isn't the name of a variable. 
      * @throws NumberFormatException when trying to update the value of a constant.
      */
     public void updateVariable(String variableName, String newValue) {
-        Variable variable = this.dataMap.get(variableName);
-        if (variable == null) {
-            throw new NullPointerException("שגיאה: לא נמצא משתנה בשם '" + variableName + "'.");
+        for (int i = this.scopes.size() - 1; i >= 0; i++) {
+            Scope scope = this.scopes.get(i);
+            try {
+                scope.updateVariable(variableName, newValue);
+                return; // return afer a successful update.
+            } catch (NumberFormatException e) {
+                throw e; // thrown if we are trying to update a constant.
+            } catch (NullPointerException e) {
+                // Do nothing. There is no such variable in that scope.
+            }
         }
 
-        if (variable.isConstant()) {
-            throw new NumberFormatException("שגיאה: לא ניתן לשנות את הערך של קבוע '" + variableName + "'.");
-        }
-
-        if (this.dataMap.containsKey(newValue)) {
-            //If we are assigning a variable to this (we only copy by value):
-            variable.updateValue(this.dataMap.get(newValue).getValue());
-        } else {
-            //We are updating from the value:
-            variable.updateValue(newValue);
-        }
+        throw new NullPointerException("שגיאה: לא נמצא משתנה בשם '" + variableName + "'."); // incase no such variable is found at all.
     }
     
     /**
@@ -95,17 +107,22 @@ public class VariablesController {
      * @param index - The index we want to update. We start counting from 1 (so index 1 is the first index, unlike most languages).
      * @param newValue - The new value to use in that index of the list.
      * @throws NullPointerException if variableName is not a actually the name of a variable that is a list.
+     * @throws NumberFormatException if we are trying to update a non-list as a list.
      */
     public void updateListVariable(String variableName, int index, String newValue) {
-        Variable variable = dataMap.get(variableName);
-        if (variable == null) 
-            throw new NullPointerException("שגיאה: לא קיים משתנה בשם '" + variableName + "'.");
+        for (int i = this.scopes.size() - 1; i >= 0; i++) {
+            Scope scope = this.scopes.get(i);
+            try {
+                scope.updateListVariable(variableName, index, newValue);
+                return; // return afer a successful update.
+            } catch (NumberFormatException e) {
+                throw e;
+            } catch (NullPointerException e) {
+                // Do nothing. There is no such variable in that scope.
+            }
+        }
 
-        if (!variable.isList())
-            throw new NullPointerException("שגיאה: אי אפשר לעדכן איבר במשתנה '" + variableName + "' שאינו רשימה.");
-
-        ListVariable<?> lst = (ListVariable<?>) variable;
-        lst.updateValueAtIndex(index, newValue);
+        throw new NullPointerException("שגיאה: לא נמצא משתנה בשם '" + variableName + "'."); // incase no such variable is found at all.
     }
 
     /**
@@ -114,17 +131,22 @@ public class VariablesController {
      * @param index - The index we want the new item to be. "1" means we want it as the first element in the result. "end" means we want it to be the last.
      * @param value - The value to be inserted.
      * @throws NullPointerException if variableName is not a actually the name of a variable that is a list.
+     * @throws NumberFormatException if we are trying to update a non-list as a list.
      */
     public void addToListVariable(String variableName, String index, String value) {
-        Variable variable = dataMap.get(variableName);
-        if (variable == null) 
-            throw new NullPointerException("שגיאה: לא קיים משתנה בשם '" + variableName + "'.");
+        for (int i = this.scopes.size() - 1; i >= 0; i++) {
+            Scope scope = this.scopes.get(i);
+            try {
+                scope.addToListVariable(variableName, index, value);
+                return; // return afer a successful update.
+            } catch (NumberFormatException e) {
+                throw e;
+            } catch (NullPointerException e) {
+                // Do nothing. There is no such variable in that scope.
+            }
+        }
 
-        if (!variable.isList()) 
-            throw new NullPointerException("שגיאה: אי אפשר להוסיף איבר למשתנה '" + variableName + "' שאינו רשימה.");
-
-        ListVariable<?> lst = (ListVariable<?>) variable;
-        lst.addValueAtIndex(index, value);
+        throw new NullPointerException("שגיאה: לא נמצא משתנה בשם '" + variableName + "'."); // incase no such variable is found at all.
     }
 
     /**
@@ -133,26 +155,50 @@ public class VariablesController {
      * @throws NullPointerException when variableName isn't the name of a variable. 
      */
     public String getVariableValue(String variableName) {
-        Variable variable = this.dataMap.get(variableName);
-        if (variable == null)
-            throw new NullPointerException("שגיאה: לא קיים משתנה בשם '" + variableName + "'.");
+        for (int i = this.scopes.size() - 1; i >= 0; i++) {
+            Scope scope = this.scopes.get(i);
+            try {
+                String val = scope.getVariableValue(variableName);
+                return val;
+            } catch (NullPointerException e) {
+                // Do nothing. There is no such variable in that scope. Maybe it's in a previous scope.
+            }
+        }
 
-        return variable.getValue();
+        throw new NullPointerException("שגיאה: לא קיים משתנה בשם '" + variableName + "'.");
     }
 
     /**
-     * Clears all the variables created.
+     * Clears all the variables created in all scopes.
      */
     public void clear() {
-        this.dataMap.clear();
+        for (Scope scope : this.scopes) {
+            scope.clear();
+        }
     }
 
     /**
      * Prints all the variables in the format (variableName : variableValue).
      */
     public void printVariables() {
-        for (Map.Entry<String, Variable> entry : this.dataMap.entrySet()) {
-            System.out.println("(" + entry.getKey() + " : " + entry.getValue().toString() + ")");
+        for (Scope scope : this.scopes) {
+            scope.printVariables();
         }
+    }
+
+    /**
+     * Creates a new scope for the program.
+     */
+    public void createScope() {
+        this.scopes.add(new Scope());
+    }
+
+    /**
+     * Clears the most recent scope and removes it from the program.
+     */
+    public void popScope() {
+        int last = this.scopes.size() - 1;
+        this.scopes.get(last).clear();
+        this.scopes.remove(last);
     }
 }
