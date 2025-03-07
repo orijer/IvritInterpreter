@@ -57,6 +57,7 @@ public class FlowController {
             interpreter.start();
 
         } catch (Exception exception) {
+            exception.printStackTrace();
             System.out.println(exception.getMessage());
             System.out.println("\nננסה להריץ קובץ מחדש: ");
             startIvritInterpreter(isFirstRun);

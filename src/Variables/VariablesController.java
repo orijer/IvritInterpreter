@@ -39,7 +39,7 @@ public class VariablesController {
      * (meaning it isn't hidden by a more recent non-list variable with the same name).
      */
     public boolean isList(String name) {
-        for (int i = this.scopes.size()-1; i>=0; i++) {
+        for (int i = this.scopes.size()-1; i>=0; i--) {
             Scope scope = this.scopes.get(i);
             if (scope.isVariable(name)) {
                 return scope.isList(name);
@@ -65,7 +65,7 @@ public class VariablesController {
      * @throws NullPointerException when variableName isn't the name of a variable. 
      */
     public void deleteVariable(String variableName) {
-        for (int i = this.scopes.size() - 1; i >= 0; i++) {
+        for (int i = this.scopes.size() - 1; i >= 0; i--) {
             Scope scope = this.scopes.get(i);
             try {
                 scope.deleteVariable(variableName);
@@ -86,7 +86,7 @@ public class VariablesController {
      * @throws NumberFormatException when trying to update the value of a constant.
      */
     public void updateVariable(String variableName, String newValue) {
-        for (int i = this.scopes.size() - 1; i >= 0; i++) {
+        for (int i = this.scopes.size() - 1; i >= 0; i--) {
             Scope scope = this.scopes.get(i);
             try {
                 scope.updateVariable(variableName, newValue);
@@ -110,7 +110,7 @@ public class VariablesController {
      * @throws NumberFormatException if we are trying to update a non-list as a list.
      */
     public void updateListVariable(String variableName, int index, String newValue) {
-        for (int i = this.scopes.size() - 1; i >= 0; i++) {
+        for (int i = this.scopes.size() - 1; i >= 0; i--) {
             Scope scope = this.scopes.get(i);
             try {
                 scope.updateListVariable(variableName, index, newValue);
@@ -134,7 +134,7 @@ public class VariablesController {
      * @throws NumberFormatException if we are trying to update a non-list as a list.
      */
     public void addToListVariable(String variableName, String index, String value) {
-        for (int i = this.scopes.size() - 1; i >= 0; i++) {
+        for (int i = this.scopes.size() - 1; i >= 0; i--) {
             Scope scope = this.scopes.get(i);
             try {
                 scope.addToListVariable(variableName, index, value);
@@ -155,7 +155,7 @@ public class VariablesController {
      * @throws NullPointerException when variableName isn't the name of a variable. 
      */
     public String getVariableValue(String variableName) {
-        for (int i = this.scopes.size() - 1; i >= 0; i++) {
+        for (int i = this.scopes.size() - 1; i >= 0; i--) {
             Scope scope = this.scopes.get(i);
             try {
                 String val = scope.getVariableValue(variableName);
