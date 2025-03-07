@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Stores the scopes of the program, which contain the mappings between the variables to their values.
  * This allows us declare the same variable twice in different scopes, and treat them as two different variables.
- * Very useful in functions (for example, in parameters).
+ * Very useful in functions (for example, in recursions).
  */
 public class VariablesController {
     //A list that contains all the scopes of the program.

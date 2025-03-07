@@ -50,34 +50,36 @@ public class Jumper {
             throw new NullPointerException("שגיאה: לא נמצאה נקודת קפיצה בשם '" + jumpFlag + "'.");
 
         try {
-            this.reader.restart();
-            int targetLineNumber = this.jumpMap.get(jumpFlag);
-            for (int lineCounter = 0; lineCounter < targetLineNumber; lineCounter++) {
-                reader.readLine();
-            }
-
+            this.reader.goToLine(this.jumpMap.get(jumpFlag));
         } catch (IOException exception) {
             throw new UncheckedIOException("שגיאה: הקפיצה נתקלה בשגיאה אל נקודת הקפיצה '" + jumpFlag + "'.", exception);
         }
     }
 
+    /**
+     * Makes the active reader jump to the start of the code of a function.
+     * @param function - The name of the function to jump to.
+     * @throws NullPointerException when the given function doesn't exist in the processed file.
+     * @throws UncheckedIOException when a problem occured when jumping to a function.
+     */
     public void activeReaderStartFunction(String function) {
         if (!funcMap.containsKey(function))
             throw new NullPointerException("שגיאה: לא נמצאה פונקציה בשם '" + function + "'.");
 
         try {
-            this.returnLinesStack.push(this.reader.getCurrentLine() + 1);
-            this.reader.restart();
-            int targetLineNumber = this.funcMap.get(function);
-            for (int lineCounter = 0; lineCounter < targetLineNumber; lineCounter++) {
-                reader.readLine();
-            }
+            this.returnLinesStack.push(this.reader.getCurrentLine());
+            this.reader.goToLine(this.funcMap.get(function));
 
         } catch (IOException exception) {
             throw new UncheckedIOException("שגיאה: הקפיצה נתקלה בשגיאה אל הפונקציה '" + function + "'.", exception);
-        } //TODO: this looks almost the same as activeReaderJumpTo.... maybe fix it?
+        }
     }
 
+    /**
+     * Makes the active reader jump to the return to the latest return address, meaning to the next line of the last caller.
+     * @throws NullPointerException when trying to return from the global scope.
+     * @throws UncheckedIOException when a problem occured when returning from a function.
+     */
     public void activeReaderReturnToCaller() {
         if (this.returnLinesStack.empty()) {
             throw new NullPointerException("אי אפשר לחזור מהסקופ הגלובילי.");
@@ -85,14 +87,10 @@ public class Jumper {
 
         int returnLine = this.returnLinesStack.pop();
         try {
-            this.reader.restart();
-            for (int lineCounter = 1; lineCounter < returnLine; lineCounter++) {
-                reader.readLine();
-            }
-
+            this.reader.goToLine(returnLine);
         } catch (IOException exception) {
             throw new UncheckedIOException("שגיאה: חזרה מתוך פונקציה נכשלה.", exception);
-        } //TODO: this looks almost the same as activeReaderJumpTo.... maybe fix it?
+        }
     }
 
     /**

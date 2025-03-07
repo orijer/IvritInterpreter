@@ -15,7 +15,7 @@ public class RestartableBufferedReader implements RestartableReader {
     private File sourceFile;
     // true IFF this reader is open (= usable):
     private boolean isOpen;
-    // The number of the next line to read from the source.
+    // The number of the next line to read from the source. We only count lines that were neither empty nor comments.
     private int currentLine;
 
     /**
@@ -33,17 +33,16 @@ public class RestartableBufferedReader implements RestartableReader {
 
     @Override
     public String readLine() throws IOException {
-        if (this.isOpen) {
-            String line;
-            do {
-                line = this.delegatedReader.readLine();
-            } while (line != null && (line.isBlank() || line.charAt(0) == '#'));
+        if (!this.isOpen)
+            throw new IOException("הקורא הזה כבר סגור");
+        
+        String line;
+        do {
+            line = this.delegatedReader.readLine();
+        } while (line != null && (line.isBlank() || line.charAt(0) == '#'));
 
-            this.currentLine++;
-            return line;
-        }
-
-        throw new IOException("הקורא הזה כבר סגור");
+        this.currentLine++;
+        return line;
     }
 
     @Override
@@ -60,17 +59,28 @@ public class RestartableBufferedReader implements RestartableReader {
 
     @Override
     public void close() throws IOException {
-        if (this.isOpen) {
-            this.delegatedReader.close();
-            return;
-        }
+        if (!this.isOpen)
+            throw new IOException("הקורא הזה כבר סגור");
 
-        throw new IOException("הקורא הזה כבר סגור");
+        this.delegatedReader.close();
+        return;
     }
 
     @Override
     public int getCurrentLine() {
         return this.currentLine;
+    }
+
+    @Override
+    public void goToLine(int lineNumber) throws IOException {
+        if (!this.isOpen)
+            throw new IOException("הקורא הזה כבר סגור");
+        
+        this.restart();
+        while (this.currentLine < lineNumber)
+            readLine();
+        return;
+
     }
 
 }
