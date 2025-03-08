@@ -1,12 +1,15 @@
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.List;
+import java.util.Map;
 
 import Evaluation.EvaluationController;
 
 import IvritStreams.RestartableBufferedReader;
 import IvritStreams.RestartableReader;
 import UserInput.UserInput;
+import Variables.ArgumentData;
 import Variables.StringVariable;
 import Variables.VariablesController;
 
@@ -32,9 +35,9 @@ public class Interpreter {
      * Constructor.
      * @param preprocessedFile - The file we want to interpret after preprocessing it.
      */
-    public Interpreter(File preprocessedFile, Jumper jumper, UserInput userInput) {
+    public Interpreter(File preprocessedFile, Jumper jumper, Map<String,List<ArgumentData>> functionDefinitions, UserInput userInput) {
         this.preprocessedFile = preprocessedFile;
-        this.variableController = new VariablesController();
+        this.variableController = new VariablesController(functionDefinitions);
         this.jumper = jumper;
         this.evaluator = new EvaluationController(this.variableController);
         this.userInput = userInput;
@@ -294,9 +297,29 @@ public class Interpreter {
         this.jumper.activeReaderJumpTo(jumpFlag);
     }
 
+    /**
+     * Processes the functino calls action.
+     * @param callLine - The line that contains which functino was called and with what arguments.
+     */
     private void processCallFunctionAction(String callLine) {
-        this.jumper.activeReaderStartFunction(callLine);
-        this.variableController.createScope();
+        String original = callLine;
+        int functionNameEndIndex = callLine.indexOf(' ');
+        if (functionNameEndIndex == -1) { // A call without arguments
+            this.jumper.activeReaderStartFunction(callLine);
+            this.variableController.createScope();
+        } else { // A call with arguments. We need to extract them first.
+            String functionName = callLine.substring(0, functionNameEndIndex).trim();
+            callLine = callLine.substring(functionNameEndIndex + 1).trim();
+            if (!callLine.startsWith("עם"))
+                throw new IllegalArgumentException("שגיאה: נמצאה קריאה לפונקציה עם ארגומנטים אך ללא המילה עם בשורה '" + original + "'.");
+            callLine = callLine.substring(3).trim();
+            String[] args = callLine.split(",");
+            for (int i = 0; i < args.length; i++)
+                args[i] = args[i].trim();
+
+            this.jumper.activeReaderStartFunction(functionName);
+            this.variableController.createScope(functionName, args);
+        }
     }
 
     /**

@@ -2,11 +2,13 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 
 import IvritExceptions.GeneralFileRuntimeException;
 
 import UserInput.UserInput;
-
+import Variables.ArgumentData;
 import IvritStreams.RestartableReader;
 import IvritStreams.RestartableBufferedReader;
 
@@ -49,10 +51,10 @@ public class FlowController {
         try (RestartableReader reader = new RestartableBufferedReader(sourceFile)) {
             //The preprocessing stage:
             Preprocessor preprocessor = new Preprocessor(sourceFile);
-            preprocessor.start();
+            Map<String, List<ArgumentData>> functionDefinitions = preprocessor.start();
 
             //The interpretation stage:
-            Interpreter interpreter = new Interpreter(sourceFile, preprocessor.generateJumper(), this.userInput);
+            Interpreter interpreter = new Interpreter(sourceFile, preprocessor.generateJumper(), functionDefinitions, this.userInput);
             interpreter.initializeGlobalVariables();
             interpreter.start();
 

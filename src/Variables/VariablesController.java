@@ -2,6 +2,7 @@ package Variables;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Stores the scopes of the program, which contain the mappings between the variables to their values.
@@ -11,13 +12,16 @@ import java.util.List;
 public class VariablesController {
     //A list that contains all the scopes of the program.
     private List<Scope> scopes;
+    // A mapping between function names and the data about their parameters.
+    Map<String,List<ArgumentData>> functionDefinitions;
 
     /**
      * Constructor.
      */
-    public VariablesController() {
+    public VariablesController(Map<String,List<ArgumentData>> functionDefinitions) {
         this.scopes = new LinkedList<>();
         this.scopes.add(new Scope()); // The global scope.
+        this.functionDefinitions = functionDefinitions;
     }
 
     /**
@@ -187,10 +191,35 @@ public class VariablesController {
     }
 
     /**
-     * Creates a new scope for the program.
+     * Creates a new empty scope for the program.
      */
     public void createScope() {
         this.scopes.add(new Scope());
+    }
+
+    /**
+     * Creates a new scope for the program which contains some values (useful for passing arguments to function scopes).
+     */
+    public void createScope(String functionName, String[] args) {
+        Scope newScope = new Scope();
+        List<ArgumentData> expectedArgs = this.functionDefinitions.get(functionName);
+        if (expectedArgs == null)
+            throw new IllegalArgumentException("שגיאה: לא נמצאה פונקציה בשם '" + functionName + "'.");
+
+        if (expectedArgs.size() != args.length)
+            throw new IllegalArgumentException("שגיאה: בקריאה לפונקציה '" + functionName + "' נשלחו " + args.length + "ארגומנטים, אך ציפינו לקבל " + expectedArgs.size());
+
+        for (int i = 0; i < args.length; i++) {
+            ArgumentData currData = expectedArgs.get(i);
+            try {
+                String value = getVariableValue(args[i]);
+                newScope.createVariable(currData.getName(), currData.getType(), value, currData.getIsList(), false);
+            } catch (NullPointerException e) {
+                newScope.createVariable(currData.getName(), currData.getType(), args[i], currData.getIsList(), false);
+            }
+        }
+
+        this.scopes.add(newScope);
     }
 
     /**
