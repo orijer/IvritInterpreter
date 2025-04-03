@@ -1,23 +1,18 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
             "type": "java",
-            "name": "Main",
+            "name": "Run Interpreter",
             "request": "launch",
-            "mainClass": "Main",
-            "projectName": "IvritInterpreter-1_b036cb00"
+            "mainClass": "ivrit.interpreter.Main",
         },
         {
             "type": "java",
-            "name": "Main",
+            "name": "Run Backend",
             "request": "launch",
             "console": "internalConsole",
-            "mainClass": "Main",
-            "projectName": "IvritInterpreter_d6a06c5c"
+            "mainClass": "ivrit.backend.Main",
         }
     ]
 }
