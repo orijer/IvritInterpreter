@@ -16,4 +16,4 @@ public class Main {
         System.out.println("הפירוש הסתיים");
         System.out.println("ניתן לסגור את החלון בבטחה.");
     }
-} // Fix a bug where the code משתנה מ = 5 doesn't print the error correctly...
+}
