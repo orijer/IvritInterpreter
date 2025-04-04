@@ -300,8 +300,8 @@ public class Interpreter {
     }
 
     /**
-     * Processes the functino calls action.
-     * @param callLine - The line that contains which functino was called and with what arguments.
+     * Processes the function calls action.
+     * @param callLine - The line that contains which function was called and with what arguments.
      */
     private void processCallFunctionAction(String callLine) {
         String original = callLine;
