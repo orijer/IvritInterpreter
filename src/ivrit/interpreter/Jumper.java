@@ -1,11 +1,11 @@
 package ivrit.interpreter;
 
-import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.Stack;
 
-import ivrit.interpreter.IvritStreams.RestartableReader;
+import ivrit.interpreter.IvritStreams.JumpingSourceFileReader;
+
 
 /**
  * The object that handles jumping a RestartableReader to a jump flag.
@@ -20,7 +20,7 @@ public class Jumper {
     // A stack that contains the function return lines (the top item is the number of the line a return should go back to).
     private Stack<Integer> returnLinesStack;
     // The active reader that needs to jump:
-    private RestartableReader reader;
+    private JumpingSourceFileReader reader;
 
     /**
      * Constructor.
@@ -37,7 +37,7 @@ public class Jumper {
     /**
      * @param reader - The reader that needs to be jumped.
      */
-    public void setActiveReader(RestartableReader reader) {
+    public void setActiveReader(JumpingSourceFileReader reader) {
         this.reader = reader;
     }
 
@@ -53,8 +53,8 @@ public class Jumper {
 
         try {
             this.reader.goToLine(this.jumpMap.get(jumpFlag));
-        } catch (IOException exception) {
-            throw new UncheckedIOException("שגיאה: הקפיצה נתקלה בשגיאה אל נקודת הקפיצה '" + jumpFlag + "'.", exception);
+        } catch (IndexOutOfBoundsException exception) {
+            throw new IndexOutOfBoundsException("שגיאה: הקפיצה נתקלה בשגיאה אל נקודת הקפיצה '" + jumpFlag + "'.");
         }
     }
 
@@ -72,8 +72,8 @@ public class Jumper {
             this.returnLinesStack.push(this.reader.getCurrentLine());
             this.reader.goToLine(this.funcMap.get(function));
 
-        } catch (IOException exception) {
-            throw new UncheckedIOException("שגיאה: הקפיצה נתקלה בשגיאה אל הפונקציה '" + function + "'.", exception);
+        } catch (IndexOutOfBoundsException exception) {
+            throw new IndexOutOfBoundsException("שגיאה: הקפיצה נתקלה בשגיאה אל הפונקציה '" + function + "'.");
         }
     }
 
@@ -90,8 +90,8 @@ public class Jumper {
         int returnLine = this.returnLinesStack.pop();
         try {
             this.reader.goToLine(returnLine);
-        } catch (IOException exception) {
-            throw new UncheckedIOException("שגיאה: חזרה מתוך פונקציה נכשלה.", exception);
+        } catch (IndexOutOfBoundsException exception) {
+            throw new IndexOutOfBoundsException("שגיאה: חזרה מתוך פונקציה נכשלה.");
         }
     }
 

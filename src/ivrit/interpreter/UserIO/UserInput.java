@@ -1,4 +1,4 @@
-package ivrit.interpreter.UserInput;
+package ivrit.interpreter.UserIO;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -36,7 +36,6 @@ public class UserInput {
         } else {
             throw new UnsupportedOperationException("שגיאה: התקבל קלט משתמש ללא הכנה מוקדמת לכך.");
         }
-
     }
 
     /**

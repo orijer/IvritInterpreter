@@ -1,4 +1,4 @@
-package ivrit.interpreter.UserInput;
+package ivrit.interpreter.UserIO;
 
 import java.util.concurrent.CountDownLatch;
 

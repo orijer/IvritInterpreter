@@ -1,4 +1,4 @@
-package ivrit.interpreter;
+package ivrit.interpreter.UI;
 
 import java.io.PrintStream;
 
@@ -12,7 +12,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import ivrit.interpreter.IvritStreams.TextAreaOutputStream;
-import ivrit.interpreter.UserInput.UserInput;
+import ivrit.interpreter.UserIO.IvritIO;
+import ivrit.interpreter.UserIO.UserInput;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -27,19 +28,19 @@ import java.awt.event.ActionEvent;
  * The GUI of the console that the Interpreter uses.
  * We allow printing messages from the program, and receiving input from the user when we need it.
  */
-public class IvritInterpreterGUI {
+public class IvritInterpreterGUI extends AbstractUI {
     //The fonts used for the GUI:
     public static final Font TITLE_FONT = new Font("Ariel", Font.PLAIN, 40);
     public static final Font TEXT_FONT = new Font("Ariel", Font.PLAIN, 20);
 
-    //The class that handles inputs from the user:
-    private UserInput userInput;
+    UserInput userInputObj;
 
     /**
      * Constructor.
      */
-    public IvritInterpreterGUI(UserInput userInput) {
-        this.userInput = userInput;
+    public IvritInterpreterGUI(IvritIO io, UserInput userInputObj) {
+        super(io);
+        this.userInputObj = userInputObj;
         initializeFrame();
     }
 
@@ -105,11 +106,11 @@ public class IvritInterpreterGUI {
         userInputField.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (userInput.getIsUserInputAllowed()) {
-                    userInput.newInputReceived(userInputField.getText());
+                if (userInputObj.getIsUserInputAllowed()) {
+                    userInputObj.newInputReceived(userInputField.getText());
 
                     //What the GUI does after an input:
-                    System.out.println(userInput.getLastUserInput());
+                    io.print(userInputObj.getLastUserInput());
                     userInputField.setText("");
                 }
 

@@ -3,6 +3,8 @@ package ivrit.interpreter.Variables;
 import java.util.HashMap;
 import java.util.Map;
 
+import ivrit.interpreter.UserIO.IvritIO;
+
 /**
  * Stores the variables the user created and allows for fast lookup and updates for them. 
  */
@@ -151,9 +153,9 @@ public class Scope {
     /**
      * Prints all the variables in the format (variableName : variableValue).
      */
-    public void printVariables() {
+    public void printVariables(IvritIO io) {
         for (Map.Entry<String, Variable> entry : this.dataMap.entrySet()) {
-            System.out.println("(" + entry.getKey() + " : " + entry.getValue().toString() + ")");
+            io.print("(" + entry.getKey() + " : " + entry.getValue().toString() + ")");
         }
     }
 }

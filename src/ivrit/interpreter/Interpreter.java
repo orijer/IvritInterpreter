@@ -1,6 +1,5 @@
 package ivrit.interpreter;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
@@ -8,9 +7,8 @@ import java.util.Map;
 
 import ivrit.interpreter.Evaluation.EvaluationController;
 
-import ivrit.interpreter.IvritStreams.RestartableBufferedReader;
-import ivrit.interpreter.IvritStreams.RestartableReader;
-import ivrit.interpreter.UserInput.UserInput;
+import ivrit.interpreter.IvritStreams.JumpingSourceFileReader;
+import ivrit.interpreter.UserIO.IvritIO;
 import ivrit.interpreter.Variables.ArgumentData;
 import ivrit.interpreter.Variables.StringVariable;
 import ivrit.interpreter.Variables.VariablesController;
@@ -19,30 +17,32 @@ import ivrit.interpreter.Variables.VariablesController;
  * The class the reads the preprocessed file and interprets it (executes to the console).
  */
 public class Interpreter {
-    //If this is the first char of a line, then it is a line that can be jumped to from other lines.
+    // If this is the first char of a line, then it is a line that can be jumped to from other lines.
     public static final char JUMP_FLAG_CHAR = '@';
+    // Every function definition should start with this keyword
+    public static final String FUNCTION_PREFIX = "פונקציה ";
 
-    //The file we want to interpret after preprocessing it.
-    private File preprocessedFile;
-    //The object that handles all the variables of the program:
+    // The file we want to interpret after preprocessing it.
+    private SourceFile preprocessedFile;
+    // The object that handles all the variables of the program:
     private VariablesController variableController;
-    //Controls the jump operation:
+    // Controls the jump operation:
     private Jumper jumper;
-    //The object that evaluates expressions.
+    // The object that evaluates expressions.
     private EvaluationController evaluator;
-    //The object that handles getting input from the user:
-    private UserInput userInput;
+    // The object that handles inputs and outputs:
+    private IvritIO io;
 
     /**
      * Constructor.
      * @param preprocessedFile - The file we want to interpret after preprocessing it.
      */
-    public Interpreter(File preprocessedFile, Jumper jumper, Map<String,List<ArgumentData>> functionDefinitions, UserInput userInput) {
+    public Interpreter(SourceFile preprocessedFile, Jumper jumper, Map<String,List<ArgumentData>> functionDefinitions, IvritIO io) {
         this.preprocessedFile = preprocessedFile;
         this.variableController = new VariablesController(functionDefinitions);
         this.jumper = jumper;
         this.evaluator = new EvaluationController(this.variableController);
-        this.userInput = userInput;
+        this.io = io;
     }
 
     /**
@@ -59,10 +59,11 @@ public class Interpreter {
      * @throws UncheckedIOException when an exception that cannot be traced happened during interpretation.
      */
     public void start() {
-        System.out.println("מתחיל לפרש את הקובץ: " + this.preprocessedFile.getName());
+        io.print("מתחיל לפרש את הקובץ.");
         boolean continueProcessing = true;
 
-        try (RestartableReader reader = new RestartableBufferedReader(preprocessedFile)) {
+        try {
+            JumpingSourceFileReader reader = new JumpingSourceFileReader(preprocessedFile);
             this.jumper.setActiveReader(reader);
 
             String currentLine;
@@ -83,12 +84,12 @@ public class Interpreter {
         }
 
         if (continueProcessing) {
-            System.out.println("\nפירוש הקובץ הסתיים לאחר שנקרא כל הקובץ (לא עברנו דרך 'צא')");
+            io.print("\nפירוש הקובץ הסתיים לאחר שנקרא כל הקובץ (לא עברנו דרך 'צא')");
         } else
-            System.out.println("\nפירוש הקובץ הסתיים לאחר שעברנו דרך המילה 'צא'");
+            io.print("\nפירוש הקובץ הסתיים לאחר שעברנו דרך המילה 'צא'");
         
-        System.out.println("המשתנים שנותרו לאחר סיום התכנית: ");
-        this.variableController.printVariables();
+        io.print("המשתנים שנותרו לאחר סיום התכנית: ");
+        this.variableController.printVariables(this.io);
     }
 
     /**
@@ -103,51 +104,54 @@ public class Interpreter {
         if (endAt == -1) //Handle the case where the line only has one word:
             endAt = line.length();
         String action = line.substring(0, endAt);
+        InterpreterCommands command = InterpreterCommands.fromString(action);
+        
+        if (command == null) { // action is not a command:
+            if (this.variableController.isVariable(action))
+                processAssignmentAction(line.substring(endAt + 1), action); //It is a variable, than we are just assigning to it: 
+            else 
+                throw new UnsupportedOperationException("שגיאה: הפירוש נתקע במילה הלא מוכרת '" + action + "' בשורה '" + originalLine + "'");
 
-        switch (action) {
-            case "הדפס":
+            return true;
+        }
+
+        switch (command) {
+            case PRINT:
                 processPrintAction(line.substring(endAt + 1));
                 break;
-            case "משתנה":
+            case VARIABLE:
                 processVariableAction(line.substring(endAt + 1));
                 break;
-            case "קבוע":
+            case CONSTANT:
                 processConstantAction(line.substring(endAt + 1));
                 break;
-            case "מחק":
+            case DELETE:
                 processDeleteAction(line.substring(endAt + 1).trim());
                 break;
-            case "אם":
+            case IF:
                 processIfAction(line);
                 break;
-            case "קפוץ-ל":
+            case JUMP:
                 processJumpAction(line.substring(endAt + 1));
                 break;
-            case "הפעל":
+            case CALL:
                 processCallFunctionAction(line.substring(endAt + 1));
                 break;
-            case "תחזיר":
-            case "תחזור":
+            case RETURN:
                 if (endAt < line.length())
                     processReturnAction(line.substring(endAt + 1));
                 else processReturnAction("");
                 break;
-            case "קלוט-ל":
+            case INPUT:
                 processInputAction(line.substring(endAt + 1));
                 break;
-            case "הוסף":
+            case ADD:
                 processAddAction(line.substring(5).trim());
                 break;
-            case "צא":
+            case EXIT:
                 return false;
             default:
-                if (this.variableController.isVariable(action)) {
-                    //It is a variable, than we are just assigning to it: 
-                    processAssignmentAction(line.substring(endAt + 1), action);
-                } else {
-                    throw new UnsupportedOperationException("שגיאה: הפירוש נתקע במילה הלא מוכרת '" + action + "' בשורה '" + originalLine + "'");
-                }
-                break;
+                throw new UnsupportedOperationException("שגיאה: הפירוש נתקע במילה הלא מוכרת '" + action + "' בשורה '" + originalLine + "'");
         }
 
         return true;
@@ -158,7 +162,7 @@ public class Interpreter {
      */
     private void processPrintAction(String data) {
         data = this.evaluator.evaluate(data);
-        System.out.println(data);
+        io.print(data);
     }
 
     /**
@@ -337,8 +341,7 @@ public class Interpreter {
      * @param variableName - The variable to store the input in.
      */
     private void processInputAction(String variableName) {
-        this.userInput.waitForNewUserInput();
-        String input = this.userInput.getLastUserInput();
+        String input = this.io.getUserInput();
         input = this.evaluator.evaluate(input);
 
         this.variableController.updateVariable(variableName, input);

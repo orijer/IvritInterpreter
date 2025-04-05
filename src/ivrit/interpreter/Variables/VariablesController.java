@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import ivrit.interpreter.UserIO.IvritIO;
+
 /**
  * Stores the scopes of the program, which contain the mappings between the variables to their values.
  * This allows us declare the same variable twice in different scopes, and treat them as two different variables.
@@ -184,9 +186,9 @@ public class VariablesController {
     /**
      * Prints all the variables in the format (variableName : variableValue).
      */
-    public void printVariables() {
+    public void printVariables(IvritIO io) {
         for (Scope scope : this.scopes) {
-            scope.printVariables();
+            scope.printVariables(io);
         }
     }
 
