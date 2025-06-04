@@ -12,7 +12,7 @@ public class GeneralFileRuntimeException extends UncheckedIOException {
      * @param cause - What caused this exception.
      */
     public GeneralFileRuntimeException(IOException cause) {
-        super("התרחשה שגיאה כללית בזמן הרצת הקובץ.", cause);
+        super("התרחשה שגיאה כללית בזמן הרצת הקוד.", cause);
     }
     
 }

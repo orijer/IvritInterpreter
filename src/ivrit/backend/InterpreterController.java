@@ -1,5 +1,6 @@
 package ivrit.backend;
 
+import java.security.Principal;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -25,29 +26,36 @@ public class InterpreterController {
         this.ioMapping = new ConcurrentHashMap<>();
     }
     
-    @MessageMapping("/interpret") // This method is mapped to messages sent to "/app/interpret"
-    @SendToUser("/queue/output") // The output will be sent to the specific user’s destination "/queue/output"
+    @MessageMapping("/interpret")
     public void executeCode(String code, SimpMessageHeaderAccessor headerAccessor) throws Exception {
-        String sessionID = headerAccessor.getSessionId();
-        
-        WebSocketIO io = new WebSocketIO(messagingTemplate, sessionID, code);
-        this.ioMapping.put(sessionID, io);
+        Principal user = headerAccessor.getUser();
+        if (user == null) {
+            System.err.println("User Principal is null: message will not be sent.");
+            return;
+        }
+
+        String username = user.getName();
+        WebSocketIO io = new WebSocketIO(messagingTemplate, username, code);
+        this.ioMapping.put(username, io);
 
         SourceCodeLoader codeLoader = new WebSocketSourceCodeLoader();
-        FlowController controller = new FlowController(io, codeLoader);
+        FlowController controller = new FlowController(io, codeLoader, false, false);
 
         // Actually start running the interpreter:
         controller.startIvritInterpreter();
 
         // Finished the interpretation:
-        this.ioMapping.remove(sessionID);
+        this.ioMapping.remove(username);
     }
 
     @MessageMapping("/input") // This method is mapped to messages sent to "/app/input"
-    @SendToUser("/queue/input")
     public String handleInput(String input, SimpMessageHeaderAccessor headerAccessor) {
-        String sessionID = headerAccessor.getSessionId();
-        WebSocketIO io = this.ioMapping.get(sessionID);
+        Principal user = headerAccessor.getUser();
+        if (user == null) {
+            return "No user";
+        }
+
+        WebSocketIO io = this.ioMapping.get(user.getName());
         if (io != null)
             io.supplyUserInput(input);
         

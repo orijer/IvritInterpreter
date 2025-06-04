@@ -11,7 +11,7 @@ public class WebSocketIO implements IvritIO {
     // A spring object that allows us to send messages to a specific user.
     private SimpMessagingTemplate messagingTemplate;
     // A unique identifier of the user that allows us to send messages only to it.
-    private String sessionID;
+    private String username;
     // The code the user wants to run.
     private String code;
     // A queue for incoming inputs. When it is empty and we try to access it, we are blocked until a new item is inserted.
@@ -20,9 +20,10 @@ public class WebSocketIO implements IvritIO {
     /**
      * Constructor.
      */
-    public WebSocketIO(SimpMessagingTemplate messagingTemplate, String sessionID, String code) {
+    public WebSocketIO(SimpMessagingTemplate messagingTemplate, String username, String code) {
         this.messagingTemplate = messagingTemplate;
-        this.sessionID = sessionID;
+        this.username = username;
+        this.code = code;
         this.inputQueue = new LinkedBlockingQueue<>();
     }
 
@@ -30,12 +31,14 @@ public class WebSocketIO implements IvritIO {
     public void print(String message) {
         // Send the message to the user's destination. 
         // The destination "/queue/output" is defined in our WebSocket configuration.
-        messagingTemplate.convertAndSendToUser(this.sessionID, "/queue/output", message);
+        this.messagingTemplate.convertAndSendToUser(this.username, "/queue/output", message);
     }
 
     @Override
     public String getUserInput() {
         try {
+            if (this.inputQueue.isEmpty())
+                this.messagingTemplate.convertAndSendToUser(this.username, "/queue/input", "INPUT");
             return this.inputQueue.take();
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();

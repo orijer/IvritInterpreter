@@ -59,7 +59,7 @@ public class Interpreter {
      * @throws UncheckedIOException when an exception that cannot be traced happened during interpretation.
      */
     public void start() {
-        io.print("מתחיל לפרש את הקובץ.");
+        io.print("מתחיל לפרש את הקוד.\n");
         boolean continueProcessing = true;
 
         try {
@@ -80,13 +80,13 @@ public class Interpreter {
             }
         } catch (IOException exception) {
             //We cant really recover if we cant read from the source file...
-            throw new UncheckedIOException("שגיאה: המפרש נכשל במהלך הריצה. ודאו שהקובץ אכן בפורמט הנכון.", exception);
+            throw new UncheckedIOException("שגיאה: המפרש נכשל במהלך הריצה. ודאו שהקוד אכן בפורמט הנכון.", exception);
         }
 
         if (continueProcessing) {
-            io.print("\nפירוש הקובץ הסתיים לאחר שנקרא כל הקובץ (לא עברנו דרך 'צא')");
+            io.print("\nפירוש הקוד הסתיים לאחר שנקרא כל הקוד (לא עברנו דרך 'צא')");
         } else
-            io.print("\nפירוש הקובץ הסתיים לאחר שעברנו דרך המילה 'צא'");
+            io.print("\nפירוש הקוד הסתיים לאחר שעברנו דרך המילה 'צא'");
         
         io.print("המשתנים שנותרו לאחר סיום התכנית: ");
         this.variableController.printVariables(this.io);

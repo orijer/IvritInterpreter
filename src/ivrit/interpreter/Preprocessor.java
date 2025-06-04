@@ -45,7 +45,7 @@ public class Preprocessor {
         try {
             JumpingSourceFileReader reader = new JumpingSourceFileReader(sourceFile);
             
-            io.print("מתחיל עיבוד מקדים של הקובץ.");
+            io.print("מתחיל עיבוד מקדים של הקוד.");
 
             // Maps between the function name and the information about it's arguments.
             Map<String, List<ArgumentData>> functionDeclarations = new HashMap<>();
@@ -60,7 +60,7 @@ public class Preprocessor {
             return functionDeclarations;
         } catch(IOException exception) {
             //We can't really recover if we can't read from the source file...
-            throw new UncheckedIOException("שגיאה: העיבוד המקדים נכשל. בדוק שהקובץ אכן בפורמט הנכון!", exception);
+            throw new UncheckedIOException("שגיאה: העיבוד המקדים נכשל. בדוק שהקוד אכן בפורמט הנכון!", exception);
         }
     }
 

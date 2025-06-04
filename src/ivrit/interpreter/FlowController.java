@@ -13,6 +13,8 @@ import ivrit.interpreter.UserIO.IvritIO;
 public class FlowController {
     private IvritIO io;
     SourceCodeLoader codeLoader;
+    boolean keepRunning;
+    boolean printMessages;
 
     /**
      * Constructor.
@@ -20,6 +22,18 @@ public class FlowController {
     public FlowController(IvritIO io, SourceCodeLoader codeLoader) {
         this.io = io;
         this.codeLoader = codeLoader;
+        this.keepRunning = true;
+        printMessages = true;
+    }
+
+    /**
+     * Constructor.
+     */
+    public FlowController(IvritIO io, SourceCodeLoader codeLoader, boolean keepRunning, boolean printMessages) {
+        this.io = io;
+        this.codeLoader = codeLoader;
+        this.keepRunning = keepRunning;
+        this.printMessages = printMessages;
     }
 
     /**
@@ -46,8 +60,14 @@ public class FlowController {
         } catch (Exception exception) {
             //If we get an unhandled exception, print and try again:
             exception.printStackTrace();
-            io.print("נתקלנו בשגיאה לא מוכרת בזמן השגת כתובת ההרצה");
-            io.print("ננסה מחדש:");
+            if (!keepRunning) 
+                return;
+
+            if (printMessages) {
+                io.print("נתקלנו בשגיאה לא מוכרת בזמן השגת כתובת ההרצה");
+                io.print("ננסה מחדש:");
+            }
+
             startIvritInterpreter(isFirstRun);
             return;
         }
@@ -61,12 +81,19 @@ public class FlowController {
             Interpreter interpreter = new Interpreter(sourceFile, preprocessor.generateJumper(), functionDefinitions, this.io);
             interpreter.initializeGlobalVariables();
             interpreter.start();
-            startIvritInterpreter(false);
+
+            if (keepRunning)
+                startIvritInterpreter(false);
 
         } catch (Exception exception) {
             //exception.printStackTrace(); //mainly turned on during debugging
             io.print(exception.getMessage());
-            io.print("\nננסה להריץ קובץ מחדש: ");
+            if (!keepRunning)
+                return;
+
+            if (printMessages)
+                io.print("\nננסה להריץ קובץ מחדש: ");
+            
             startIvritInterpreter(isFirstRun);
             return;
         }
@@ -76,11 +103,13 @@ public class FlowController {
      * Handles loading the file from the user input.
      */
     private SourceFile handleFileLoad(boolean isFirstRun) {
-        if (isFirstRun)
-            io.print("הכנס את כתובת קובץ ההרצה:");
-        else {
-            io.print("אם ברצונך להריץ קובץ נוסף הכנס אותו עכשיו.");
-            io.print("אחרת, הכנס סגור.");
+        if (printMessages) {
+            if (isFirstRun)
+                io.print("הכנס את כתובת קובץ ההרצה:");
+            else {
+                io.print("אם ברצונך להריץ קובץ נוסף הכנס אותו עכשיו.");
+                io.print("אחרת, הכנס סגור.");
+            }
         }
 
         String input = this.io.getCode();
@@ -90,8 +119,12 @@ public class FlowController {
         try {
             return this.codeLoader.load(input);
         } catch (IllegalArgumentException exception) {
-            io.print("הקובץ לא נמצא!");
-            return handleFileLoad(isFirstRun); // try again
+            if (printMessages)
+                io.print("הקובץ לא נמצא!");
+                
+            if (keepRunning)
+                return handleFileLoad(isFirstRun); // try again
+            else return null;
         }
     }
 }
