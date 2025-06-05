@@ -83,7 +83,7 @@ public class BooleanVariable extends AbstractVariable<Boolean> {
     }
 
     /**
-     * @return 0 if the given string doesn't start with a boolean operatorm or the operator length (how many characters it has) otherwise.
+     * @return 0 if the given string doesn't start with a boolean operator or the operator length (how many characters it has) otherwise.
      */
     public static int startsWithBooleanOperator(String data) {
         for (String operator : BOOLEAN_OPERATORS) {
@@ -92,5 +92,22 @@ public class BooleanVariable extends AbstractVariable<Boolean> {
         }
 
         return 0;
+    }
+
+    /**
+     * @return how many boolean operators are in the given string.
+     */
+    public static int countBooleanOperators(String str) {
+        String[] patterns = {"וגם", "או", "שווה", "לא-שווה", ">", "<"};
+        int total = 0;
+        for (String pattern : patterns) {
+            int index = 0;
+            while ((index = str.indexOf(pattern, index)) != -1) {
+                total++;
+                index += pattern.length(); // Move past current match
+            }
+        }
+        
+        return total;
     }
 }

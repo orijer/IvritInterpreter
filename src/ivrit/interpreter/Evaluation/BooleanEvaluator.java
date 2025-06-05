@@ -37,7 +37,6 @@ public class BooleanEvaluator extends OrderedEvaluator {
 
             case "או":
                 if (data1.equals("אמת") || data2.equals("אמת"))
-
                     resultVariable = new BooleanVariable("אמת");
                 else
                     resultVariable = new BooleanVariable("שקר");
@@ -62,6 +61,20 @@ public class BooleanEvaluator extends OrderedEvaluator {
 
     @Override
     protected String createBrackets(String data) {
+        int numOfOperators = BooleanVariable.countBooleanOperators(data);
+        if (numOfOperators == 0) {
+            //No operations = no brackets needed:
+            return data;
+
+        } else if (numOfOperators == 1) {
+            //There is only one operation = just add brackets to it if needed:
+            if (data.charAt(0) == '(' && data.charAt(data.length() - 1) == ')')
+                return data;
+
+            return '(' + data + ')';
+        }
+
+        //TODO: Implement adding more than 1 pair of brackets later:
         return data;
     }
 }
