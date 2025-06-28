@@ -56,7 +56,7 @@ public class JumpingSourceFileReader {
         if (lineNumber < 0)
             throw new IndexOutOfBoundsException("שגיאה: אי אפשר לקפוץ לשורה שלילית בקובץ המקור.");
 
-        if (lineNumber >= this.sourceFile.getSourceFileSize())    
+        if (lineNumber > this.sourceFile.getSourceFileSize())    
             throw new IndexOutOfBoundsException("שגיאה: אי אפשר לקפוץ לשורה שלילית בקובץ המקור.");
 
         this.currentLine = lineNumber;

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import ivrit.interpreter.IvritStreams.JumpingSourceFileReader;
 import ivrit.interpreter.UserIO.IvritIO;
@@ -41,8 +42,11 @@ public class Preprocessor {
      * Starts to preprocess the file.
      * @throws GeneralPreprocessingException when an exception that can't be traced happened during the prepocessing stage.
      */
-    public Map<String, List<ArgumentData>> start() {
+    public Map<String, List<ArgumentData>> startPreprocessing() {
         try {
+            // Turn If-Statements and Loops to simple jumps:
+            preprocessIfsAndLoops();
+
             JumpingSourceFileReader reader = new JumpingSourceFileReader(sourceFile);
             
             io.print("מתחיל עיבוד מקדים של הקוד.");
@@ -52,7 +56,7 @@ public class Preprocessor {
             int linesCounter = 1;
             String currentLine;
             while ((currentLine = reader.readLine()) != null) {
-                processLine(currentLine, linesCounter, functionDeclarations);
+                preprocessLine(currentLine, linesCounter, functionDeclarations);
                 linesCounter++;
             }
 
@@ -65,13 +69,74 @@ public class Preprocessor {
     }
 
     /**
+    * Turns all If-Statements and Loops in the object's SourceFile to jumps.
+    */
+    private void preprocessIfsAndLoops() {
+        int currentIfLabel = 0;
+        int currentLoopLabel = 0;
+        int newIfLabel = 0;
+        int newLoopLabel = 0;
+        Stack<Boolean> isIfFinishStack = new Stack<>();
+        List<String> convertedLines = new LinkedList<>();
+
+        for (int lineIndex=0; lineIndex<this.sourceFile.getSourceFileSize(); lineIndex++) {
+            String currLine = this.sourceFile.getLine(lineIndex);
+            if (currLine.startsWith("אם ")) {
+                if (currLine.length() == 3)
+                    throw new UncheckedIOException(new IOException("שגיאה: העיבוד המקדים נכשל כי נמצא שימוש ב 'אם' ללא תנאי עוקב בשורה " + (lineIndex + 1)));
+                String condition = currLine.substring(3);
+                currentIfLabel++;
+                newIfLabel++;
+
+                convertedLines.add("אם " + condition + " אז @אם_" + newIfLabel + ", אחרת @אחרת_" + newIfLabel + ", בסוף @סוף_" + newIfLabel);
+                convertedLines.add("@אם_" + newIfLabel);
+                isIfFinishStack.push(true);
+            } else if (currLine.startsWith("אחרת")) {
+                convertedLines.add("@אחרת_" + currentIfLabel);
+            } else if (currLine.startsWith("כל עוד ")) {
+                if (currLine.length() == 7)
+                    throw new UncheckedIOException(new IOException("שגיאה: העיבוד המקדים נכשל כי נמצא שימוש ב 'כל עוד' ללא תנאי עוקב בשורה " + (lineIndex + 1)));
+
+                String condition = currLine.substring(7);
+                currentLoopLabel++;
+                newLoopLabel++;  
+                
+                convertedLines.add("@לולאה_" + newLoopLabel);
+                convertedLines.add("אם " + condition + " אז @גוף_לולאה_" + newLoopLabel + ", אחרת @סוף_לולאה_" + newLoopLabel + ", בסוף @סוף_לולאה_" + newLoopLabel);
+                convertedLines.add("@גוף_לולאה_" + newLoopLabel);
+                isIfFinishStack.push(false);
+            } else if (currLine.startsWith("סוף")) {
+                if (isIfFinishStack.isEmpty())
+                    throw new UncheckedIOException(new IOException("שגיאה: נמצא 'סוף' מיותר בשורה " + (lineIndex + 1)));
+
+                if (isIfFinishStack.pop()) { // This is the finish of an If-Statement
+                    convertedLines.add("@סוף_" + currentIfLabel);
+                    currentIfLabel--;
+                } else { // This is the finish of a Loop
+                    convertedLines.add("קפוץ-ל לולאה_" + currentLoopLabel);
+                    convertedLines.add("@סוף_לולאה_" + currentLoopLabel);
+                    currentLoopLabel--;
+                }
+            } else convertedLines.add(currLine);
+        }
+
+        if (currentIfLabel > 0)
+            throw new UncheckedIOException(new IOException("שגיאה: קיים 'אם' שאינו נסגר בעזרת 'סוף'!"));
+
+        if (currentLoopLabel > 0)
+            throw new UncheckedIOException(new IOException("שגיאה: קיימת לולאת 'כל עוד' שאינה נסגרת בעזרת 'סוף'!"));
+
+        this.sourceFile.setLines(convertedLines);
+    }
+
+    /**
      * Preprocesses a single line of the source file.
      * @param currentLine - The current line to be processed.
      * @param linesCounter - The number of the curren line.
      * @param functionDeclarations - A map that keeps information about function declarations.
      * @throws IOException when a function declaration is invalid (shorter then 6 words or doesn't contain "מחזירה" or "מקבלת").
      */
-    private void processLine(String currentLine, int linesCounter, 
+    private void preprocessLine(String currentLine, int linesCounter, 
                              Map<String, List<ArgumentData>> functionDeclarations) throws IOException {
         if (currentLine.charAt(0) == Interpreter.JUMP_FLAG_CHAR) { // Handle jumps:
             this.jumpMap.put(currentLine.substring(1), linesCounter);
@@ -87,11 +152,11 @@ public class Preprocessor {
             lineWords.remove(lineWords.size() - 1);
 
             this.funcMap.put(lineWords.get(1), linesCounter);
-            functionDeclarations.put(lineWords.get(1), processFunctionDeclaration(lineWords));
+            functionDeclarations.put(lineWords.get(1), preprocessFunctionDeclaration(lineWords));
         }
     }
 
-    private List<ArgumentData> processFunctionDeclaration(List<String> lineTokens) {
+    private List<ArgumentData> preprocessFunctionDeclaration(List<String> lineTokens) {
         List<ArgumentData> results = new LinkedList<>();
         if (lineTokens.get(3).equals("כלום"))
             return results;

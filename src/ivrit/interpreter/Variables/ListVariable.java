@@ -112,13 +112,33 @@ public class ListVariable<T extends Variable> extends AbstractVariable<List<T>> 
             throw new IndexOutOfBoundsException("שגיאה: המיקום " + index + " הוא קטן מידי עבור רשימה (צריך לפחות 1).");
         }
 
-        if (index > this.value.size()) {
+        if (index > this.value.size() + 1) {
             throw new IndexOutOfBoundsException("שגיאה: המיקום " + index + " הוא גדול מידי עבור רשימה בגודל " + this.value.size() + ".");
         }
 
         @SuppressWarnings("unchecked") // createNewVariableWithSameType on an object of type T, returns an object of type T!
         T item = (T) classVar.createNewVariableWithSameType(value.trim());
         this.value.add(index-1, item);
+    }
+
+    public void removeValueAtIndex(String stringIndex) {
+        int index = 0;
+        if (stringIndex.equals("end")) {
+            index = this.value.size();
+        } else {
+            index = Integer.parseInt(stringIndex);
+        }
+
+        if (index < 1) {
+            throw new IndexOutOfBoundsException("שגיאה: המיקום " + index + " הוא קטן מידי עבור רשימה (צריך לפחות 1).");
+        }
+
+        if (index > this.value.size() + 1) {
+            throw new IndexOutOfBoundsException(
+                    "שגיאה: המיקום " + index + " הוא גדול מידי עבור רשימה בגודל " + this.value.size() + ".");
+        }
+
+        this.value.remove(index-1);
     }
 
     @Override

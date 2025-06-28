@@ -28,7 +28,10 @@ public class NumericEvaluator extends OrderedEvaluator {
                 break;
             case "/":
                 resultVariable.divide(data2);
-                break;                
+                break;   
+            case "%":
+                resultVariable.modulo(data2);
+                break;             
             default:
                 throw new UnsupportedOperationException("הפעולה " + operation + " אינה מוכרת בחישוב ערך שלם.");
         }

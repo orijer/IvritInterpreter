@@ -21,6 +21,13 @@ public class SourceFile {
     }
 
     /**
+     * Sets the lines of this source file to the given value.
+     */
+    public void setLines(List<String> codeLines) {
+        this.codeLines = codeLines;
+    }
+
+    /**
      * @param lineNumber - The number of the line to retrieve.
      * @return a line of code at a specific index (number of line).
      * @throws IndexOutOfBoundsException when the given lineNumber is either negative or larger then the number of code lines.
@@ -29,10 +36,10 @@ public class SourceFile {
         if (lineNumber < 0)
             throw new IndexOutOfBoundsException("שגיאה: מספר שורה אינו יכול להיות שלילי.");
         
-        if (lineNumber >= codeLines.size()) 
+        if (lineNumber >= this.codeLines.size()) 
             throw new IndexOutOfBoundsException("מספר השורה חרג ממספר השורות בקובץ המקור.");
 
-        return codeLines.get(lineNumber);
+        return this.codeLines.get(lineNumber);
     }
 
     /**

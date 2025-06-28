@@ -4,8 +4,8 @@ package ivrit.interpreter.Variables;
  * The methods all variables with a numeric value should support.
  */
 public interface NumericVariable extends Variable {
-    //An array of all the operators Numeric Variables support:
-    public static char[] NUMERIC_OPERATORS = { '+', '-', '*', '/' };
+    // An array of all the operators Numeric Variables support:
+    public static char[] NUMERIC_OPERATORS = { '+', '-', '*', '/', '%' };
 
     /**
      * Adds the given value to the variable's value.
@@ -30,6 +30,12 @@ public interface NumericVariable extends Variable {
      * @param value - The value to divide by (represented as a string).
      */
     public void divide(String value);
+    
+    /**
+     * Gets the modulo of the variable's value by the given value.
+     * @param value - The value to take the modulo with
+     */
+    public void modulo(String value);
 
     /**
      * @return true IFF the variable's value is greater then the given value.
@@ -58,7 +64,7 @@ public interface NumericVariable extends Variable {
      * @return how many numeric operators are in the given string.
      */
     public static int countNumericOperators(String str) {
-        String regex =  "\\+|-|\\*|/";
+        String regex =  "\\+|-|\\*|/|%";
 
         String[] parts = str.split(regex);
 

@@ -144,7 +144,7 @@ public class VariablesController {
             Scope scope = this.scopes.get(i);
             try {
                 scope.addToListVariable(variableName, index, value);
-                return; // return afer a successful update.
+                return; // Return after a successful update.
             } catch (NumberFormatException e) {
                 throw e;
             } catch (NullPointerException e) {
@@ -156,7 +156,28 @@ public class VariablesController {
     }
 
     /**
-     * @param variableName - The name of the variable we wan the value of.
+     * Removes an item from the list at a specific index (the first index is always 1).
+     * @param variableName - The name of the list variable.
+     * @param index - The index we want to remove. "1" means we want to remove the first element. "end" means we want to remove the last element.
+     */
+    public void removeFromListVariable(String variableName, String index) {
+        for (int i = this.scopes.size() - 1; i >= 0; i--) {
+            Scope scope = this.scopes.get(i);
+            try {
+                scope.removeFromListVariable(variableName, index);
+                return; // Return after a successful removal.
+            } catch (NumberFormatException e) {
+                throw e;
+            } catch (NullPointerException e) {
+                // Do nothing. There is no such variable in that scope.
+            }
+        }
+
+        throw new NullPointerException("שגיאה: לא נמצא משתנה בשם '" + variableName + "'."); // incase no such variable is found at all.
+    }
+
+    /**
+     * @param variableName - The name of the variable we want the value of.
      * @return the value of the variable with the given name.
      * @throws NullPointerException when variableName isn't the name of a variable. 
      */
@@ -222,7 +243,7 @@ public class VariablesController {
         }
 
         this.scopes.add(newScope);
-    }
+    } 
 
     /**
      * Clears the most recent scope and removes it from the program.

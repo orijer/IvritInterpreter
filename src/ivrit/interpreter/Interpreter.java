@@ -148,6 +148,9 @@ public class Interpreter {
             case ADD:
                 processAddAction(line.substring(5).trim());
                 break;
+            case REMOVE:
+                processRemoveAction(line.substring(4).trim());
+                break;
             case EXIT:
                 return false;
             default:
@@ -187,7 +190,11 @@ public class Interpreter {
         String[] infoTokens = splitVariableInfo(data);
         boolean isList = (infoTokens[3].equals("true"));
 
-        infoTokens[2] = this.evaluator.evaluate(infoTokens[2]);
+        if (!isList) {
+            // lists dont evaluate to anything...
+            infoTokens[2] = this.evaluator.evaluate(infoTokens[2]);
+        }
+
         this.variableController.createVariable(infoTokens[0], infoTokens[1], infoTokens[2], isList, true);
     }
 
@@ -319,9 +326,9 @@ public class Interpreter {
             if (!callLine.startsWith("עם"))
                 throw new IllegalArgumentException("שגיאה: נמצאה קריאה לפונקציה עם ארגומנטים אך ללא המילה עם בשורה '" + original + "'.");
             callLine = callLine.substring(3).trim();
-            String[] args = callLine.split(",");
+            String[] args = callLine.split(","); //TODO: but this splits strings that include , incorrectly...
             for (int i = 0; i < args.length; i++)
-                args[i] = args[i].trim();
+                args[i] = this.evaluator.evaluate(args[i].trim());
 
             this.jumper.activeReaderStartFunction(functionName);
             this.variableController.createScope(functionName, args);
@@ -350,7 +357,7 @@ public class Interpreter {
     /**
      * Processes adding a value to a list.
      * @param line - The line the describes what value to add, where to add it, and to which list to add it.
-     */
+     */ //TODO: make sure this works with lists of strings that contain spaces
     private void processAddAction(String line) {
         String target = line.substring(line.lastIndexOf(' ')+1).trim(); 
         line = line.substring(0, line.lastIndexOf(' ')).trim();
@@ -363,13 +370,35 @@ public class Interpreter {
             line = line.substring(0, line.lastIndexOf(' ')).trim();
             this.variableController.addToListVariable(target, "end", line);
 
-        } else if (line.endsWith("של") || line.endsWith("של")) { // adding to the middle of a list
+        } else if (line.endsWith("של")) { // adding to the middle of a list
             line = line.substring(0, line.lastIndexOf(' ')).trim();
             String[] values = line.split("במקום");
             this.variableController.addToListVariable(target, values[1].trim(), values[0].trim());
 
         } else {
             throw new UnsupportedOperationException("שגיאה: הפירוש נתקע בקטע הלא החוקי '" + line + "' בזמן הוספה לרשימה.");
+        }
+    }
+
+    private void processRemoveAction(String line) {
+        System.out.println("1) " + line);
+        String target = line.substring(line.lastIndexOf(' ') + 1).trim(); 
+        line = line.substring(0, line.lastIndexOf(' ')).trim();
+        System.out.println("2) " + line);
+
+        if (line.endsWith("מתחילת")) {
+            this.variableController.removeFromListVariable(target, "1");
+
+        } else if (line.endsWith("מסוף")) {
+            this.variableController.removeFromListVariable(target, "end");
+
+        } else if (line.endsWith("של")) { // removing from the middle of a list
+            line = line.substring(0, line.lastIndexOf(' ')).trim();
+            this.variableController.removeFromListVariable(target, line.substring(line.lastIndexOf(' ')).trim());
+
+        } else {
+            throw new UnsupportedOperationException(
+                    "שגיאה: הפירוש נתקע בקטע הלא החוקי '" + line + "' בזמן הסרה לרשימה.");
         }
     }
 
@@ -382,7 +411,7 @@ public class Interpreter {
     private void processAssignmentAction(String data, String variableName) {
         if (this.variableController.isList(variableName) && data.startsWith("במקום")) {
             // We are trying to assign inside a list:
-            data = data.substring(6); //ignore במקום
+            data = data.substring(6); // ignore במקום
             int charAt = data.indexOf('=');
             if (charAt == -1)
                 throw new UnsupportedOperationException("שגיאה: נמצאה השמה של המשתנה '" + variableName + "' שבה לא היה הסימן שווה (=).");
@@ -393,42 +422,46 @@ public class Interpreter {
             return;
         }
 
-        // Assignment of a regular variable::
+        // Assignment of a regular variable:
         char assignmentType = data.charAt(0);
         data = data.substring(1).trim();
         String newValue;
 
         switch (assignmentType) {
             case '=':
-                //Normal assignment:
+                // Normal assignment:
                 newValue = this.evaluator.evaluate(data);
                 break;
             case '+':
-                //Additive compound assignment:
+                // Additive compound assignment:
                 data = this.evaluator.evaluate(data.substring(1).trim());
                 if (StringVariable.isStringValue(data) || StringVariable.isStringValue(variableName)) {
-                    //Adding strings:
+                    // Adding strings:
                     newValue = this.evaluator.evaluate(variableName + " + " + data);
                 } else {
-                    //Adding numbers:
+                    // Adding numbers:
                     newValue = this.evaluator.evaluate('(' + data + " + " + variableName + ')');
                 }
                 break;
             case '-':
-                //Subtractive compound assignment:
+                // Subtractive compound assignment:
                 data = this.evaluator.evaluate(data.substring(1).trim());
                 newValue = this.evaluator.evaluate('(' + data + " - " + variableName + ')');
                 break;
             case '*':
-                //Multiplicative compound assignment:
+                // Multiplicative compound assignment:
                 data = this.evaluator.evaluate(data.substring(1).trim());
                 newValue = this.evaluator.evaluate('(' + data + " * " + variableName + ')');
                 break;
             case '/':
-                //Divisitive compound assignment:
+                // Divisitive compound assignment:
                 data = this.evaluator.evaluate(data.substring(1).trim());
                 newValue = this.evaluator.evaluate('(' + data + " / " + variableName + ')');
                 break;
+            case '%':
+                // Modulo compound assignment:
+                data = this.evaluator.evaluate(data.substring(1).trim());
+                newValue = this.evaluator.evaluate('(' + data + " / " + variableName + ')');
             default:
                 throw new UnsupportedOperationException("שגיאה: התו " + assignmentType + " אינו חוקי לפני התו '=' בפעולת השמה בקטע " + data);
         }

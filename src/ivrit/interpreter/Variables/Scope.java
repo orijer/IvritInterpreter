@@ -131,6 +131,23 @@ public class Scope {
     }
 
     /**
+     * Removes an item from the list at a specific index (the first index is always 1).
+     * @param variableName - The name of the list variable.
+     * @param index - The index we want the new item to be. "1" means we want it as the first element in the result. "end" means we want it to be the last.
+     */
+    public void removeFromListVariable(String variableName, String index) {
+        Variable variable = dataMap.get(variableName);
+        if (variable == null)
+            throw new NullPointerException("שגיאה: לא קיים משתנה בשם '" + variableName + "'.");
+
+        if (!variable.isList())
+            throw new NullPointerException("שגיאה: אי אפשר להסיר איבר ממשתנה '" + variableName + "' שאינו רשימה.");
+
+        ListVariable<?> lst = (ListVariable<?>) variable;
+        lst.removeValueAtIndex(index);
+    }
+
+    /**
      * @param variableName - The name of the variable we wan the value of.
      * @return the value of the variable with the given name.
      * @throws NullPointerException when variableName isn't the name of a variable. 

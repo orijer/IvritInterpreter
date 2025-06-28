@@ -93,6 +93,16 @@ public class FloatVariable extends AbstractVariable<Float> implements NumericVar
     }
 
     @Override
+    public void modulo(String value) {
+        if (IntegerVariable.isIntegerValue(value)) {
+            this.value %= Integer.parseInt(value);
+        } else if (FloatVariable.isFloatValue(value)) {
+            this.value %= Float.parseFloat(value);
+        } else
+            throw new ClassCastException("שגיאה: לא ניתן לחשב שארית עבור משתנה מסוג עשרוני והערך " + value);
+    }
+
+    @Override
     public BooleanVariable greaterThen(String value) {
         String result = "שקר";
 

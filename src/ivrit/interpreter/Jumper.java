@@ -103,7 +103,7 @@ public class Jumper {
     }
 
     /**
-     * If the given string is the trigger jump flag of the nex jump flag link we are expecting, 
+     * If the given string is the trigger jump flag of the next jump flag link we are expecting, 
      * jumps the reader to the linked jump flag.
      * @param jumpFlag - The flag we read.
      */

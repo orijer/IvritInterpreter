@@ -11,6 +11,7 @@ public enum InterpreterCommands {
     RETURN("תחזיר", "תחזור"),
     INPUT("קלוט-ל"),
     ADD("הוסף"),
+    REMOVE("הסר"),
     EXIT("צא");
 
     private final String[] literals;

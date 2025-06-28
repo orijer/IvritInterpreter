@@ -106,6 +106,18 @@ public class IntegerVariable extends AbstractVariable<Integer> implements Numeri
     }
 
     @Override
+    public void modulo(String value) {
+        if (IntegerVariable.isIntegerValue(value)) {
+            this.value %= Integer.parseInt(value);
+
+        } else if (FloatVariable.isFloatValue(value)) {
+            this.value %= (int) Float.parseFloat(value);
+
+        } else
+            throw new ClassCastException("שגיאה: לא ניתן לחשב שארית עבור משתנה מסוג שלם והערך " + value);
+    }
+
+    @Override
     public BooleanVariable greaterThen(String value) {
         String result = "שקר";
 

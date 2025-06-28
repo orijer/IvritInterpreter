@@ -75,7 +75,7 @@ public class FlowController {
         try {
             //The preprocessing stage:
             Preprocessor preprocessor = new Preprocessor(sourceFile, this.io);
-            Map<String, List<ArgumentData>> functionDefinitions = preprocessor.start();
+            Map<String, List<ArgumentData>> functionDefinitions = preprocessor.startPreprocessing();
 
             //The interpretation stage:
             Interpreter interpreter = new Interpreter(sourceFile, preprocessor.generateJumper(), functionDefinitions, this.io);
