@@ -381,10 +381,8 @@ public class Interpreter {
     }
 
     private void processRemoveAction(String line) {
-        System.out.println("1) " + line);
         String target = line.substring(line.lastIndexOf(' ') + 1).trim(); 
         line = line.substring(0, line.lastIndexOf(' ')).trim();
-        System.out.println("2) " + line);
 
         if (line.endsWith("מתחילת")) {
             this.variableController.removeFromListVariable(target, "1");
