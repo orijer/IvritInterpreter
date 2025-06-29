@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: spring-backend
+    env: java
+    plan: free
+    buildCommand: ""
+    startCommand: "java -jar IvritInterpreterBackend.jar"
+    envVars:
+      - key: JAVA_VERSION
+        value: 17
