@@ -28,7 +28,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
             .setHandshakeHandler(new CustomHandshakeHandler())
-            .setAllowedOriginPatterns("*")
+            .setAllowedOriginPatterns("https://ivrit-lang.vercel.app")
             .withSockJS();
     }
 }
